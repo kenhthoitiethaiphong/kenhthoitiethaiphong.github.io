@@ -1,154 +1,201 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thời tiết Phường Thủy Nguyên</title>
-    <style>
-        :root {
-            --primary-blue: #0056b3;
-            --light-bg: #f4f7f9;
-            --card-bg: #ffffff;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--light-bg);
-            margin: 0;
-            padding: 20px;
-            color: #333;
-        }
-       .container {
-            max-width: 900px;
-            margin: auto;
-        }
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-       .current-weather {
-            background: linear-gradient(135deg, #007bff, #00c6ff);
-            color: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            margin-bottom: 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-       .forecast-section {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 20px;
-        }
-       .card {
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-       .forecast-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
-        }
-       .forecast-item {
-            text-align: center;
-            padding: 10px;
-            border-bottom: 2px solid var(--light-bg);
-        }
-       .temp { font-size: 2em; font-weight: bold; }
-       .details { font-size: 1.1em; opacity: 0.9; }
-        h2 { border-left: 5px solid var(--primary-blue); padding-left: 10px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thời tiết Phường Thủy Nguyên</title>
+
+<style>
+:root {
+    --primary-blue: #007bff;
+    --light-bg: #f4f7f9;
+    --card-bg: #ffffff;
+}
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: var(--light-bg);
+    padding: 15px;
+    margin: 0;
+}
+
+.container {
+    max-width: 900px;
+    margin: auto;
+}
+
+/* HEADER */
+header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* CURRENT */
+.current-weather {
+    background: linear-gradient(135deg, #007bff, #00c6ff);
+    color: white;
+    padding: 20px;
+    border-radius: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.temp {
+    font-size: 2.5em;
+    font-weight: bold;
+}
+
+.details {
+    font-size: 1em;
+    opacity: 0.9;
+}
+
+/* CARD */
+.card {
+    background: var(--card-bg);
+    padding: 15px;
+    border-radius: 12px;
+    margin-top: 20px;
+}
+
+h2 {
+    border-left: 5px solid var(--primary-blue);
+    padding-left: 10px;
+}
+
+/* GRID */
+.forecast-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+}
+
+.forecast-item {
+    text-align: center;
+    padding: 10px;
+    border-radius: 10px;
+    background: #f9fbfc;
+}
+
+/* ICON */
+.weather-icon {
+    width: 40px;
+    height: 40px;
+}
+
+/* MOBILE */
+@media(max-width:600px){
+    .temp { font-size: 2em; }
+}
+</style>
 </head>
+
 <body>
 
 <div class="container">
-    <header>
-        <h1>Thời Tiết Phường Thủy Nguyên</h1>
-        <p>Trung tâm hành chính - Thành phố Thủy Nguyên</p>
-    </header>
 
-    <div id="current" class="current-weather">
-        <div>
-            <div id="city-name" style="font-size: 1.5em; font-weight: bold;">Đang tải...</div>
-            <div id="weather-desc" class="details">--</div>
-        </div>
-        <div style="text-align: right;">
-            <div id="temp" class="temp">--°C</div>
-            <div id="humidity" class="details">Độ ẩm: --%</div>
-        </div>
+<header>
+    <h1>Thời Tiết Phường Thủy Nguyên</h1>
+</header>
+
+<div id="current" class="current-weather">
+    <div>
+        <div id="city-name">Đang tải...</div>
+        <div id="weather-desc" class="details">--</div>
     </div>
-
-    <div class="forecast-section">
-        <div class="card">
-            <h2>Dự báo 24 giờ tới</h2>
-            <div id="hourly-forecast" class="forecast-grid"></div>
-        </div>
-
-        <div class="card">
-            <h2>Dự báo 5 ngày tiếp theo</h2>
-            <div id="daily-forecast" class="forecast-grid"></div>
-        </div>
+    <div style="text-align:right;">
+        <div id="temp" class="temp">--°C</div>
+        <div id="humidity" class="details">--</div>
     </div>
 </div>
 
+<div class="card">
+    <h2>24 giờ tới</h2>
+    <div id="hourly-forecast" class="forecast-grid"></div>
+</div>
+
+<div class="card">
+    <h2>5 ngày tới</h2>
+    <div id="daily-forecast" class="forecast-grid"></div>
+</div>
+
+</div>
+
 <script>
-    const API_KEY = 'cd3f77eb664f34468e29b27cfabe2425';
-    const LAT = 20.8897;
-    const LON = 106.695;
+const API_KEY = 'cd3f77eb664f34468e29b27cfabe2425';
+const LAT = 20.8897;
+const LON = 106.695;
 
-    async function getWeatherData() {
-        try {
-            // Lấy thời tiết hiện tại
-            const currentRes = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${LAT}&lon=${LON}&appid=${API_KEY}&units=metric&lang=vi`);
-            const currentData = await currentRes.json();
-            
-            document.getElementById('city-name').innerText = "Phường Thủy Nguyên";
-            document.getElementById('temp').innerText = `${Math.round(currentData.main.temp)}°C`;
-            document.getElementById('weather-desc').innerText = currentData.weather.description.toUpperCase();
-            document.getElementById('humidity').innerText = `Độ ẩm: ${currentData.main.humidity}%`;
+function getIcon(icon){
+    return `https://openweathermap.org/img/wn/${icon}@2x.png`;
+}
 
-            // Lấy dự báo
-            const forecastRes = await fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${LAT}&lon=${LON}&appid=${API_KEY}&units=metric&lang=vi`);
-            const forecastData = await forecastRes.json();
+async function getWeatherData(){
+    try {
 
-            // Hiển thị dự báo 24h (8 mốc x 3h)
-            const hourlyDiv = document.getElementById('hourly-forecast');
-            forecastData.list.slice(0, 8).forEach(item => {
-                const time = new Date(item.dt * 1000).getHours();
-                hourlyDiv.innerHTML += `
-                    <div class="forecast-item">
-                        <div>${time}:00</div>
-                        <div style="font-weight:bold">${Math.round(item.main.temp)}°C</div>
-                        <div style="font-size:0.8em">${item.weather.description}</div>
-                    </div>
-                `;
-            });
+        // CURRENT
+        const currentRes = await fetch(
+            `https://api.openweathermap.org/data/2.5/weather?lat=${LAT}&lon=${LON}&appid=${API_KEY}&units=metric&lang=vi`
+        );
+        const currentData = await currentRes.json();
 
-            // Hiển thị dự báo 5 ngày (lấy mốc 12:00 trưa mỗi ngày)
-            const dailyDiv = document.getElementById('daily-forecast');
-            const dailyItems = forecastData.list.filter(item => item.dt_txt.includes("12:00:00"));
-            dailyItems.forEach(item => {
-                const date = new Date(item.dt * 1000).toLocaleDateString('vi-VN', {weekday: 'short', day: 'numeric'});
-                dailyDiv.innerHTML += `
-                    <div class="forecast-item">
-                        <div>${date}</div>
-                        <div style="font-weight:bold; color:var(--primary-blue)">${Math.round(item.main.temp)}°C</div>
-                        <div style="font-size:0.8em">${item.weather.description}</div>
-                    </div>
-                `;
-            });
+        document.getElementById('city-name').innerText = "Phường Thủy Nguyên";
+        document.getElementById('temp').innerText = Math.round(currentData.main.temp) + "°C";
+        document.getElementById('weather-desc').innerText = currentData.weather[0].description;
+        document.getElementById('humidity').innerText = "Độ ẩm: " + currentData.main.humidity + "%";
 
-        } catch (error) {
-            console.error("Lỗi khi lấy dữ liệu:", error);
-            document.getElementById('city-name').innerText = "Không thể tải dữ liệu";
-        }
+        // FORECAST
+        const forecastRes = await fetch(
+            `https://api.openweathermap.org/data/2.5/forecast?lat=${LAT}&lon=${LON}&appid=${API_KEY}&units=metric&lang=vi`
+        );
+        const forecastData = await forecastRes.json();
+
+        // HOURLY (24h)
+        const hourlyDiv = document.getElementById('hourly-forecast');
+        hourlyDiv.innerHTML = "";
+
+        forecastData.list.slice(0, 8).forEach(item => {
+            const time = new Date(item.dt * 1000).getHours();
+
+            hourlyDiv.innerHTML += `
+            <div class="forecast-item">
+                <div>${time}:00</div>
+                <img class="weather-icon" src="${getIcon(item.weather[0].icon)}">
+                <div><b>${Math.round(item.main.temp)}°C</b></div>
+                <div>${item.weather[0].description}</div>
+            </div>`;
+        });
+
+        // DAILY (5 ngày)
+        const dailyDiv = document.getElementById('daily-forecast');
+        dailyDiv.innerHTML = "";
+
+        const dailyItems = forecastData.list.filter(i => i.dt_txt.includes("12:00:00"));
+
+        dailyItems.slice(0,5).forEach(item => {
+            const date = new Date(item.dt * 1000)
+                .toLocaleDateString('vi-VN',{weekday:'short', day:'numeric'});
+
+            dailyDiv.innerHTML += `
+            <div class="forecast-item">
+                <div>${date}</div>
+                <img class="weather-icon" src="${getIcon(item.weather[0].icon)}">
+                <div><b>${Math.round(item.main.temp)}°C</b></div>
+                <div>${item.weather[0].description}</div>
+            </div>`;
+        });
+
+    } catch(e){
+        console.log(e);
+        document.getElementById('city-name').innerText = "Lỗi API";
+        document.getElementById('weather-desc').innerText = "Kiểm tra API key hoặc mạng";
     }
+}
 
-    getWeatherData();
+getWeatherData();
 </script>
 
 </body>
