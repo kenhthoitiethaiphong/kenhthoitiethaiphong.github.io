@@ -197,6 +197,24 @@ async function getWeatherData(){
 
 getWeatherData();
 </script>
+<script>
+function sendHeight() {
+    const height = document.documentElement.scrollHeight;
+    parent.postMessage({
+        type: "weatherHeight",
+        height: height
+    }, "*");
+}
 
+// Gửi khi load
+window.addEventListener("load", sendHeight);
+
+// Gửi lại khi resize
+window.addEventListener("resize", sendHeight);
+
+// Gửi lại sau khi API load xong (quan trọng)
+setTimeout(sendHeight, 1000);
+setTimeout(sendHeight, 2000);
+</script>
 </body>
 </html>
