@@ -1,286 +1,654 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thời tiết Hải Phòng 24h & 7 ngày - thoitiethaiphong.com</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <style>
-        body { font-family: 'Be Vietnam Pro', sans-serif; background-color: #f8fafc; color: #334155; margin: 0; padding: 0; }
-        .glass-panel { background: white; border: 1px solid #e2e8f0; border-radius: 1.25rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        .chart-container-wrapper { position: relative; width: 100%; height: 280px; }
-        /* Tùy chỉnh thanh cuộn ngang */
-        .hide-scrollbar::-webkit-scrollbar { height: 4px; }
-        .hide-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
-        .hide-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thời Tiết Hải Phòng – thoitiethaiphong.com</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+/* ── RESET & BASE ─────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f0f4f8;
+  --surface:#ffffff;
+  --surface2:#f8fafc;
+  --border:#e2e8f0;
+  --text:#1e293b;
+  --muted:#64748b;
+  --faint:#94a3b8;
+  --accent:#0ea5e9;
+  --accent-dark:#0369a1;
+  --green:#10b981;
+  --green-bg:#ecfdf5;
+  --green-border:#a7f3d0;
+  --orange:#f97316;
+  --orange-bg:#fff7ed;
+  --orange-border:#fed7aa;
+  --purple:#8b5cf6;
+  --purple-bg:#f5f3ff;
+  --purple-border:#ddd6fe;
+  --red:#ef4444;
+  --shadow:0 1px 4px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.06);
+  --r:14px;
+  --font:'Be Vietnam Pro',sans-serif;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;min-height:100vh}
+
+/* ── LAYOUT ───────────────────────────────────────── */
+.wrap{max-width:960px;margin:0 auto;padding:16px}
+.grid-main{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.col{display:flex;flex-direction:column;gap:16px}
+
+/* ── CARD ─────────────────────────────────────────── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
+.card-body{padding:18px}
+.card-header{padding:11px 18px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)}
+.card-header h3{font-size:13px;font-weight:600;display:flex;align-items:center;gap:7px}
+
+/* ── BADGE ────────────────────────────────────────── */
+.badge{display:inline-flex;align-items:center;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:3px 9px;border-radius:20px;border:1px solid}
+.badge-blue{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe}
+.badge-green{background:var(--green-bg);color:#065f46;border-color:var(--green-border)}
+.badge-orange{background:var(--orange-bg);color:#9a3412;border-color:var(--orange-border)}
+.badge-red{background:#fef2f2;color:#991b1b;border-color:#fecaca}
+
+/* ── TOP HEADER ───────────────────────────────────── */
+.site-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;flex-wrap:wrap;gap:8px}
+.site-title{font-size:16px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:6px}
+.site-title .pin{color:var(--red);font-size:14px}
+.site-subtitle{font-size:11px;color:var(--muted);margin-top:3px}
+.update-badge{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:5px 10px}
+.pulse{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.85)}}
+
+/* ── CALENDAR CARD ────────────────────────────────── */
+.cal-header{background:#065f46;color:#fff;padding:10px 18px;display:flex;justify-content:space-between;align-items:center}
+.cal-header span{font-size:12px;font-weight:500}
+.cal-header .cal-dow{font-size:11px;opacity:.75}
+.cal-body{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.cal-solar{padding:16px 18px;border-right:1px solid var(--border)}
+.cal-lunar{padding:16px 18px;background:#f0fdf4}
+.cal-label{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+.cal-label.solar{color:var(--orange)}
+.cal-label.lunar{color:#065f46}
+.cal-num{font-size:52px;font-weight:800;line-height:1;margin-bottom:2px}
+.cal-num.solar{color:var(--orange)}
+.cal-num.lunar{color:#16a34a}
+.cal-sub{font-size:12px;font-weight:600}
+.cal-sub.solar{color:var(--text)}
+.cal-sub.lunar{color:#15803d}
+.cal-mini{font-size:11px;color:var(--muted);margin-top:2px}
+.cal-mini.lunar{color:#16a34a}
+.cal-detail{padding:14px 18px;border-top:1px solid var(--border);background:var(--surface2);font-size:11px;line-height:1.9;color:var(--muted)}
+.cal-detail b{color:var(--text)}
+
+/* ── WEATHER NOW ──────────────────────────────────── */
+.weather-now{background:linear-gradient(135deg,#334155 0%,#475569 60%,#64748b 100%);color:#fff;border-radius:var(--r);padding:20px;box-shadow:var(--shadow)}
+.wn-top{display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap}
+.wn-temp-block{display:flex;align-items:flex-start;gap:10px;flex:1;min-width:160px}
+.wn-temp{font-size:72px;font-weight:800;line-height:1;letter-spacing:-3px}
+.wn-info{margin-top:10px}
+.wn-desc{font-size:18px;font-weight:600}
+.wn-feel{font-size:12px;opacity:.75;margin-top:2px}
+.wn-chips{display:flex;gap:14px;margin-top:14px;font-size:12px;opacity:.85;flex-wrap:wrap}
+.wn-chips span{display:flex;align-items:center;gap:5px}
+.wn-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;flex:1;min-width:200px}
+.ws-box{background:rgba(255,255,255,.1);backdrop-filter:blur(4px);border-radius:10px;padding:11px;border:1px solid rgba(255,255,255,.08)}
+.ws-label{font-size:9px;text-transform:uppercase;letter-spacing:.08em;opacity:.65;margin-bottom:3px}
+.ws-val{font-size:18px;font-weight:700}
+.ws-sub{font-size:10px;opacity:.6;margin-top:2px}
+
+/* ── LOADING / ERROR ──────────────────────────────── */
+.loader{display:flex;align-items:center;justify-content:center;gap:8px;padding:20px;color:var(--muted);font-size:12px}
+.spinner{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.error-msg{padding:12px 16px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;color:#991b1b;font-size:12px;display:flex;align-items:center;gap:8px}
+
+/* ── 24H FORECAST ─────────────────────────────────── */
+.hours-scroll{display:flex;overflow-x:auto;gap:7px;padding-bottom:4px;scroll-snap-type:x mandatory}
+.hours-scroll::-webkit-scrollbar{height:3px}
+.hours-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+.hour-card{min-width:76px;flex-shrink:0;background:var(--surface2);border:1px solid var(--border);border-radius:11px;padding:10px 7px;text-align:center;scroll-snap-align:start;transition:border-color .2s}
+.hour-card.active{background:#eff6ff;border-color:#bfdbfe}
+.hour-card:hover{border-color:var(--accent)}
+.hc-time{font-size:10px;color:var(--muted);margin-bottom:5px;font-weight:500}
+.hc-icon{font-size:21px;margin:2px 0}
+.hc-temp{font-size:15px;font-weight:700;margin:3px 0;color:var(--text)}
+.hc-rain{font-size:10px;color:#1d4ed8;font-weight:600;margin-top:3px}
+.hc-wind{font-size:10px;color:var(--muted);margin-top:2px}
+.hc-desc{font-size:9px;color:var(--muted);margin-top:2px;line-height:1.3}
+
+/* ── TIDE CHART ───────────────────────────────────── */
+.tide-chart-wrap{position:relative;height:190px}
+.tide-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.ts-box{border-radius:10px;padding:10px;text-align:center;border:1px solid}
+.ts-box .ts-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px}
+.ts-box .ts-val{font-size:14px;font-weight:700;color:var(--text)}
+.ts-blue{background:#eff6ff;border-color:#bfdbfe}.ts-blue .ts-label{color:#1d4ed8}
+.ts-orange{background:var(--orange-bg);border-color:var(--orange-border)}.ts-orange .ts-label{color:#c2410c}
+.ts-purple{background:var(--purple-bg);border-color:var(--purple-border)}.ts-purple .ts-label{color:#7c3aed}
+
+/* ── 7 DAYS ───────────────────────────────────────── */
+.day-row{display:flex;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)}
+.day-row:last-child{border-bottom:none}
+.dr-day{width:78px;flex-shrink:0}
+.dr-day-name{font-size:12px;font-weight:600;color:var(--text)}
+.dr-day-name.today{color:var(--accent-dark)}
+.dr-date{font-size:10px;color:var(--muted)}
+.dr-weather{flex:1;display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)}
+.dr-icon{font-size:18px}
+.dr-temp{font-size:13px;font-weight:700;color:var(--text);white-space:nowrap;text-align:right}
+.dr-temp-lo{font-weight:400;color:var(--faint);font-size:12px;margin-left:4px}
+
+/* ── HOURS / GIỜ ──────────────────────────────────── */
+.giờ-block{background:var(--surface2);border-radius:10px;padding:11px 14px;font-size:11px;line-height:1.9;color:var(--muted)}
+.giờ-block b{color:var(--text)}
+
+/* ── MAP ──────────────────────────────────────────── */
+.map-wrap{border-radius:var(--r);overflow:hidden;height:400px;border:1px solid var(--border)}
+.map-wrap iframe{width:100%;height:100%;display:block;border:none}
+
+/* ── AQI BAR ──────────────────────────────────────── */
+.aqi-row{display:flex;align-items:center;gap:12px;margin-top:10px}
+.aqi-bar{flex:1;height:7px;border-radius:4px;background:linear-gradient(to right,#22c55e,#facc15,#f97316,#ef4444,#7c3aed,#881337);position:relative}
+.aqi-pointer{position:absolute;top:-3px;width:13px;height:13px;border-radius:50%;background:#fff;border:2px solid var(--text);transform:translateX(-50%);transition:left .6s ease}
+
+/* ── SECTION TITLE ────────────────────────────────── */
+.sec-title{font-size:13px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:7px;margin-bottom:14px}
+.sec-title i{font-size:13px}
+
+/* ── WINDY ATTRIBUTION ────────────────────────────── */
+.map-footer{font-size:10px;color:var(--muted);padding:6px 10px;display:flex;align-items:center;gap:4px}
+
+/* ── MOBILE RESPONSIVE ───────────────────────────── */
+@media(max-width:700px){
+  .grid-main{grid-template-columns:1fr}
+  .grid4{grid-template-columns:1fr 1fr}
+  .wn-stats{grid-template-columns:1fr 1fr}
+  .cal-body{grid-template-columns:1fr}
+  .cal-solar{border-right:none;border-bottom:1px solid var(--border)}
+  .tide-stats{grid-template-columns:1fr 1fr}
+  .wrap{padding:10px}
+  .wn-temp{font-size:56px}
+}
+@media(max-width:420px){
+  .grid2{grid-template-columns:1fr}
+  .grid4{grid-template-columns:1fr 1fr}
+  .site-header{flex-direction:column}
+  .wn-top{flex-direction:column}
+  .wn-stats{width:100%}
+}
+</style>
 </head>
-<body class="antialiased p-4 md:p-6">
+<body>
 
-    <div class="max-w-6xl mx-auto">
-        <div class="mb-6">
-            <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
-                <i class="fa-solid fa-location-dot text-red-500"></i>
-                Nhiệt độ Hải Phòng (Trung tâm) <span class="text-slate-400 font-normal">· Thời tiết hôm nay</span>
-            </h2>
-            <p class="text-[11px] text-slate-500 mt-1 uppercase tracking-tight">Cập nhật nhiệt độ, độ ẩm, gió và dự báo thời tiết Hải Phòng chi tiết.</p>
-        </div>
+<div class="wrap">
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            
-            <div class="lg:col-span-8 space-y-6">
-                
-                <section class="glass-panel overflow-hidden">
-                    <div class="bg-[#066d4d] text-white px-5 py-3 flex justify-between items-center text-sm">
-                        <span class="font-medium"><i class="fa-solid fa-calendar-check mr-2"></i>Lịch hôm nay</span>
-                        <span class="text-xs font-light">Chủ Nhật, 29/03/2026</span>
-                    </div>
-                    <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div class="border-r border-slate-100 pr-4">
-                            <span class="text-[10px] font-bold text-orange-500 uppercase tracking-widest">Dương lịch</span>
-                            <div class="flex items-center gap-5 mt-2">
-                                <span class="text-7xl font-black text-orange-500 leading-none">29</span>
-                                <div>
-                                    <div class="font-bold text-slate-800 text-lg">Tháng 3 năm 2026</div>
-                                    <div class="text-sm text-slate-500">Chủ Nhật</div>
-                                </div>
-                            </div>
-                            <div class="text-xs text-slate-400 mt-4">Ngày: 29-03-2026</div>
-                        </div>
-                        <div class="bg-emerald-50/40 p-5 rounded-2xl border border-emerald-100/50">
-                            <span class="text-[10px] font-bold text-emerald-700 uppercase tracking-widest">Âm lịch</span>
-                            <div class="flex items-center gap-5 mt-2">
-                                <span class="text-7xl font-black text-emerald-700 leading-none">11</span>
-                                <div>
-                                    <div class="font-bold text-emerald-800 text-lg">Tháng 2 năm 2026</div>
-                                    <div class="text-sm text-emerald-600 font-medium">(Bính Ngọ)</div>
-                                </div>
-                            </div>
-                            <div class="text-[11px] text-emerald-800 mt-4 leading-relaxed">
-                                <b>Can chi:</b> Ngày Nhâm Dần, Tháng Nhâm Mão<br>
-                                <b>Tiết khí:</b> Xuân phân
-                            </div>
-                        </div>
-                    </div>
-                    <div class="px-6 pb-6">
-                        <div class="bg-slate-50 rounded-xl p-4 text-[11px] leading-6 border border-slate-100 shadow-sm">
-                            <p><b class="text-emerald-700">Giờ hoàng đạo:</b> Tý (23-1), Sửu (1-3), Thìn (7-9), Tỵ (9-11), Mùi (13-15), Tuất (19-21)</p>
-                            <p><b class="text-rose-600">Giờ hắc đạo:</b> Dần (3-5), Mão (5-7), Ngọ (11-13), Thân (15-17), Dậu (17-19), Hợi (21-23)</p>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="bg-[#8796a8] rounded-[1.5rem] p-8 text-white grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div class="flex flex-col justify-center">
-                        <div class="flex items-start gap-6">
-                            <span class="text-8xl font-bold tracking-tighter">27°</span>
-                            <div class="mt-4">
-                                <div class="text-2xl font-semibold">Nhiều mây</div>
-                                <div class="text-sm opacity-80 mt-1">Cảm giác như 30°</div>
-                            </div>
-                        </div>
-                        <div class="flex gap-8 mt-10 text-sm font-medium">
-                            <span><i class="fa-solid fa-droplet mr-2 opacity-70"></i> Độ ẩm: 81%</span>
-                            <span><i class="fa-solid fa-wind mr-2 opacity-70"></i> Gió: 15 km/h</span>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="bg-white/10 p-4 rounded-2xl border border-white/10">
-                            <div class="text-[10px] opacity-70 uppercase font-bold tracking-widest">Chỉ số UV</div>
-                            <div class="text-2xl font-bold mt-1">4.95</div>
-                            <div class="text-[10px]">Trung bình</div>
-                        </div>
-                        <div class="bg-white/10 p-4 rounded-2xl border border-white/10">
-                            <div class="text-[10px] opacity-70 uppercase font-bold tracking-widest">Tầm nhìn</div>
-                            <div class="text-2xl font-bold mt-1">24.1 km</div>
-                            <div class="text-[10px]">Tốt</div>
-                        </div>
-                        <div class="bg-white/10 p-4 rounded-2xl border border-white/10">
-                            <div class="text-[10px] opacity-70 uppercase font-bold tracking-widest">Áp suất</div>
-                            <div class="text-2xl font-bold mt-1">1010 hPa</div>
-                        </div>
-                        <div class="bg-white/10 p-4 rounded-2xl border border-white/10">
-                            <div class="text-[10px] opacity-70 uppercase font-bold tracking-widest">Điểm sương</div>
-                            <div class="text-2xl font-bold mt-1">23°</div>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="glass-panel p-6">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="font-bold text-slate-800 text-lg"><i class="fa-solid fa-water text-blue-500 mr-2"></i>Biểu Đồ Thủy Triều</h3>
-                        <span class="text-[10px] bg-blue-50 text-blue-600 px-3 py-1 rounded-full font-bold uppercase tracking-wider">Hải Phòng</span>
-                    </div>
-                    <div class="chart-container-wrapper">
-                        <canvas id="tideChart"></canvas>
-                    </div>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 text-center">
-                        <div class="bg-blue-50 p-4 rounded-2xl border border-blue-100">
-                            <div class="text-[10px] text-blue-400 font-bold uppercase">Mực nước cao nhất</div>
-                            <div class="font-bold text-slate-700 text-lg">3.91 m</div>
-                        </div>
-                        <div class="bg-blue-50 p-4 rounded-2xl border border-blue-100">
-                            <div class="text-[10px] text-blue-400 font-bold uppercase">Mực nước thấp nhất</div>
-                            <div class="font-bold text-slate-700 text-lg">-1.06 m</div>
-                        </div>
-                        <div class="bg-orange-50 p-4 rounded-2xl border border-orange-100">
-                            <div class="text-[10px] text-orange-400 font-bold uppercase">Bình minh</div>
-                            <div class="font-bold text-slate-700 text-lg">05:49</div>
-                        </div>
-                        <div class="bg-purple-50 p-4 rounded-2xl border border-purple-100">
-                            <div class="text-[10px] text-purple-400 font-bold uppercase">Hoàng hôn</div>
-                            <div class="font-bold text-slate-700 text-lg">18:07</div>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="glass-panel p-8">
-                    <h3 class="font-bold text-slate-800 mb-8 text-lg flex items-center gap-2">
-                        <i class="fa-regular fa-clock text-slate-400"></i> Diễn biến 24h tới
-                    </h3>
-                    <div class="flex overflow-x-auto gap-12 pb-4 hide-scrollbar">
-                        <div class="flex flex-col items-center min-w-[80px]">
-                            <div class="text-xs text-slate-400 mb-4">Bây giờ</div>
-                            <i class="fa-solid fa-cloud text-[#475569] text-3xl mb-4"></i>
-                            <div class="text-2xl font-bold text-slate-800">26°</div>
-                            <div class="text-[11px] text-blue-600 font-bold mt-3 flex items-center">
-                                <i class="fa-solid fa-caret-up mr-1 text-[8px]"></i> 35%
-                            </div>
-                        </div>
-                        <div class="flex flex-col items-center min-w-[80px]">
-                            <div class="text-xs text-slate-400 mb-4">10:00</div>
-                            <i class="fa-solid fa-cloud-sun text-[#64748b] text-3xl mb-4"></i>
-                            <div class="text-2xl font-bold text-slate-800">27°</div>
-                            <div class="text-[11px] text-blue-400 font-bold mt-3">30%</div>
-                        </div>
-                        <div class="flex flex-col items-center min-w-[80px]">
-                            <div class="text-xs text-slate-400 mb-4">17:00</div>
-                            <i class="fa-solid fa-bolt-lightning text-slate-800 text-3xl mb-4"></i>
-                            <div class="text-2xl font-bold text-slate-800">27°</div>
-                            <div class="text-[11px] text-blue-400 font-bold mt-3">0%</div>
-                        </div>
-                        <div class="flex flex-col items-center min-w-[80px]">
-                            <div class="text-xs text-slate-400 mb-4">21:00</div>
-                            <i class="fa-solid fa-moon text-slate-600 text-3xl mb-4"></i>
-                            <div class="text-2xl font-bold text-slate-800">25°</div>
-                            <div class="text-[11px] text-blue-400 font-bold mt-3">0%</div>
-                        </div>
-                    </div>
-                </section>
-            </div>
-
-            <div class="lg:col-span-4 space-y-6">
-                <section class="glass-panel p-5">
-                    <h3 class="text-[10px] font-bold text-slate-400 uppercase mb-4 tracking-widest">Khu vực Hải Phòng</h3>
-                    <div class="grid grid-cols-2 gap-2">
-                        <button class="text-left px-3 py-2.5 rounded-xl bg-blue-50 text-blue-600 text-[11px] font-bold border border-blue-100 flex items-center">
-                            <i class="fa-solid fa-location-dot mr-2"></i> Hải Phòng (T.Tâm)
-                        </button>
-                        <button class="text-left px-3 py-2.5 rounded-xl bg-slate-50 text-slate-600 text-[11px] hover:bg-white border border-transparent hover:border-slate-200 transition-all">Đồ Sơn (Biển)</button>
-                        <button class="text-left px-3 py-2.5 rounded-xl bg-slate-50 text-slate-600 text-[11px] hover:bg-white border border-transparent hover:border-slate-200 transition-all">Cát Bà (Đảo)</button>
-                        <button class="text-left px-3 py-2.5 rounded-xl bg-slate-50 text-slate-600 text-[11px] hover:bg-white border border-transparent hover:border-slate-200 transition-all font-medium">Thủy Nguyên</button>
-                    </div>
-                </section>
-
-                <section class="glass-panel p-6">
-                    <h3 class="font-bold text-slate-800 mb-6 flex items-center gap-3 text-lg">
-                        <i class="fa-solid fa-calendar-days text-blue-600"></i> 7 Ngày Tới
-                    </h3>
-                    <div class="space-y-6">
-                        <div class="flex items-center justify-between text-sm">
-                            <div class="w-24 font-medium text-slate-600">Hôm nay</div>
-                            <div class="flex-1 flex items-center gap-3 text-slate-400">
-                                <i class="fa-solid fa-bolt-lightning text-amber-500"></i> Dông bão
-                            </div>
-                            <div class="w-20 text-right font-bold text-slate-800">29° <span class="text-slate-300 font-normal ml-1">24°</span></div>
-                        </div>
-                        <div class="flex items-center justify-between text-sm">
-                            <div class="w-24 font-medium text-slate-600">Ngày mai</div>
-                            <div class="flex-1 flex items-center gap-3 text-slate-400">
-                                <i class="fa-solid fa-cloud-sun text-amber-500"></i> Nhiều mây
-                            </div>
-                            <div class="w-20 text-right font-bold text-slate-800">32° <span class="text-slate-300 font-normal ml-1">24°</span></div>
-                        </div>
-                        <div class="flex items-center justify-between text-sm">
-                            <div class="w-24 font-medium text-slate-600">Thứ Ba</div>
-                            <div class="flex-1 flex items-center gap-3 text-slate-400">
-                                <i class="fa-solid fa-bolt-lightning text-amber-500"></i> Dông bão
-                            </div>
-                            <div class="w-20 text-right font-bold text-slate-800">37° <span class="text-slate-300 font-normal ml-1">24°</span></div>
-                        </div>
-                        <div class="flex items-center justify-between text-sm">
-                            <div class="w-24 font-bold text-blue-600">Thứ Tư</div>
-                            <div class="flex-1 flex items-center gap-3 text-slate-400">
-                                <i class="fa-solid fa-bolt-lightning text-amber-500"></i> Dông bão
-                            </div>
-                            <div class="w-20 text-right font-bold text-slate-800">30° <span class="text-slate-300 font-normal ml-1">24°</span></div>
-                        </div>
-                        <div class="flex items-center justify-between text-sm">
-                            <div class="w-24 font-medium text-slate-600">Thứ Năm</div>
-                            <div class="flex-1 flex items-center gap-3 text-slate-400">
-                                <i class="fa-solid fa-cloud-sun text-amber-500"></i> Nhiều mây
-                            </div>
-                            <div class="w-20 text-right font-bold text-slate-800">30° <span class="text-slate-300 font-normal ml-1">24°</span></div>
-                        </div>
-                    </div>
-                </section>
-            </div>
-        </div>
-
-        <div class="mt-6 glass-panel p-5">
-            <h3 class="font-bold text-slate-800 mb-4 text-lg"><i class="fa-solid fa-map mr-2 text-blue-500"></i>Bản đồ Radar/Gió (Windy)</h3>
-            <div class="rounded-2xl overflow-hidden border border-slate-100 h-[450px]">
-                <iframe width="100%" height="100%" src="https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=default&metricTemp=default&metricWind=default&zoom=8&overlay=rain&product=ecmwf&level=surface&lat=20.857&lon=106.683" frameborder="0"></iframe>
-            </div>
-        </div>
+  <!-- HEADER -->
+  <div class="site-header">
+    <div>
+      <div class="site-title">
+        <i class="fa-solid fa-location-dot pin"></i>
+        Hải Phòng (Trung tâm)
+        <span style="font-weight:400;color:var(--muted);font-size:13px;">· Thời tiết hôm nay</span>
+      </div>
+      <div class="site-subtitle" id="headerDate">Đang tải ngày tháng...</div>
     </div>
+    <div class="update-badge">
+      <div class="pulse"></div>
+      <span id="updateTime">Đang cập nhật...</span>
+    </div>
+  </div>
 
-    <script>
-        // Chart.js - Biểu đồ thủy triều
-        const ctx = document.getElementById('tideChart').getContext('2d');
-        const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-        gradient.addColorStop(0, 'rgba(59, 130, 246, 0.4)');
-        gradient.addColorStop(1, 'rgba(59, 130, 246, 0)');
+  <div class="grid-main">
+    <!-- CỘT TRÁI -->
+    <div class="col">
 
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['09:00', '12:00', '15:00', '18:00', '21:00', '00:00', '03:00', '06:00', '09:00'],
-                datasets: [{
-                    data: [3.5, 3.2, 0.5, -1.0, 1.2, 3.8, 2.5, 1.0, 2.8],
-                    borderColor: '#3b82f6',
-                    backgroundColor: gradient,
-                    fill: true, tension: 0.4, borderWidth: 3, pointRadius: 4, pointBackgroundColor: '#fff', pointBorderColor: '#3b82f6'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: { min: -2, max: 4, ticks: { stepSize: 1, color: '#94a3b8', font: { size: 10 } } },
-                    x: { ticks: { color: '#94a3b8', font: { size: 10 } } }
-                }
-            }
-        });
+      <!-- LỊCH -->
+      <div class="card">
+        <div class="cal-header">
+          <span><i class="fa-solid fa-calendar-check" style="margin-right:6px"></i>Lịch hôm nay</span>
+          <span class="cal-dow" id="calDow"></span>
+        </div>
+        <div class="cal-body">
+          <div class="cal-solar">
+            <div class="cal-label solar">Dương lịch</div>
+            <div class="cal-num solar" id="solarDay">–</div>
+            <div class="cal-sub solar" id="solarMonthYear"></div>
+            <div class="cal-mini" id="solarFull"></div>
+          </div>
+          <div class="cal-lunar">
+            <div class="cal-label lunar">Âm lịch</div>
+            <div class="cal-num lunar" id="lunarDay">–</div>
+            <div class="cal-sub lunar" id="lunarMonthYear"></div>
+            <div class="cal-mini lunar" id="lunarCan"></div>
+          </div>
+        </div>
+        <div class="cal-detail" id="calDetail">
+          <b>Can chi:</b> đang tính... &nbsp;|&nbsp; <b>Tiết khí:</b> đang tính...
+        </div>
+      </div>
 
-        // HÀM GỬI CHIỀU CAO CHO IFRAME (TỪ ẢNH CHỤP)
-        function sendHeight() {
-            const height = document.documentElement.scrollHeight;
-            parent.postMessage({
-                type: "weatherHeight",
-                height: height
-            }, "*");
-        }
+      <!-- THỜI TIẾT HIỆN TẠI -->
+      <div class="weather-now" id="weatherNow">
+        <div class="loader" style="color:rgba(255,255,255,.7)">
+          <div class="spinner" style="border-color:rgba(255,255,255,.3);border-top-color:#fff"></div>
+          Đang tải dữ liệu thời tiết...
+        </div>
+      </div>
 
-        window.addEventListener("load", sendHeight);
-        window.addEventListener("resize", sendHeight);
-        setTimeout(sendHeight, 1000);
-        setTimeout(sendHeight, 2000);
-    </script>
+      <!-- 24H -->
+      <div class="card">
+        <div class="card-header">
+          <h3><i class="fa-regular fa-clock" style="color:var(--muted)"></i> Diễn biến 24 giờ tới</h3>
+          <span class="badge badge-blue" id="h24Source">Open-Meteo</span>
+        </div>
+        <div class="card-body">
+          <div class="hours-scroll" id="hourForecast">
+            <div class="loader"><div class="spinner"></div> Đang tải...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- THỦY TRIỀU -->
+      <div class="card">
+        <div class="card-header">
+          <h3><i class="fa-solid fa-water" style="color:var(--accent)"></i> Biểu đồ thủy triều</h3>
+          <span class="badge badge-blue">Hải Phòng</span>
+        </div>
+        <div class="card-body">
+          <div class="tide-chart-wrap">
+            <canvas id="tideChart"></canvas>
+          </div>
+          <div class="tide-stats">
+            <div class="ts-box ts-blue"><div class="ts-label">Cao nhất</div><div class="ts-val">3.91 m</div></div>
+            <div class="ts-box ts-blue"><div class="ts-label">Thấp nhất</div><div class="ts-val">-1.06 m</div></div>
+            <div class="ts-box ts-orange"><div class="ts-label">Bình minh</div><div class="ts-val" id="sunrise">05:49</div></div>
+            <div class="ts-box ts-purple"><div class="ts-label">Hoàng hôn</div><div class="ts-val" id="sunset">18:16</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BẢN ĐỒ -->
+      <div class="card">
+        <div class="card-header">
+          <h3><i class="fa-solid fa-map" style="color:var(--accent)"></i> Bản đồ radar / gió</h3>
+          <span class="badge badge-blue">Windy</span>
+        </div>
+        <div class="map-wrap" style="border-radius:0;height:380px">
+          <iframe src="https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=default&metricTemp=default&metricWind=default&zoom=8&overlay=rain&product=ecmwf&level=surface&lat=20.857&lon=106.683" allowfullscreen></iframe>
+        </div>
+        <div class="map-footer"><i class="fa-solid fa-circle-info" style="font-size:9px"></i> Bản đồ mưa & gió thời gian thực từ Windy (ECMWF)</div>
+      </div>
+
+    </div><!-- end col-left -->
+
+    <!-- CỘT PHẢI -->
+    <div class="col">
+
+      <!-- 7 NGÀY -->
+      <div class="card" style="position:sticky;top:12px">
+        <div class="card-header">
+          <h3><i class="fa-solid fa-calendar-days" style="color:var(--accent)"></i> 7 ngày tới</h3>
+        </div>
+        <div class="card-body" id="weekForecast">
+          <div class="loader"><div class="spinner"></div> Đang tải...</div>
+        </div>
+
+        <div style="padding:0 18px 18px">
+          <div style="border-top:1px solid var(--border);margin-bottom:14px;padding-top:14px">
+            <div class="sec-title" style="margin-bottom:8px;font-size:11px;color:var(--muted)">
+              <i class="fa-solid fa-sun" style="color:#f59e0b"></i> Giờ hoàng đạo
+            </div>
+            <div class="giờ-block" id="goodHours">–</div>
+          </div>
+          <div>
+            <div class="sec-title" style="margin-bottom:8px;font-size:11px;color:#991b1b">
+              <i class="fa-solid fa-moon"></i> Giờ hắc đạo
+            </div>
+            <div class="giờ-block" id="badHours">–</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end col-right -->
+  </div><!-- end grid-main -->
+
+</div><!-- end wrap -->
+
+<script>
+/* ─────────────────────────────────────────────────────
+   UTILITIES
+───────────────────────────────────────────────────── */
+const DAYS_VI = ['Chủ Nhật','Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy'];
+const MONTHS_VI = ['Tháng 1','Tháng 2','Tháng 3','Tháng 4','Tháng 5','Tháng 6','Tháng 7','Tháng 8','Tháng 9','Tháng 10','Tháng 11','Tháng 12'];
+const CAN = ['Giáp','Ất','Bính','Đinh','Mậu','Kỷ','Canh','Tân','Nhâm','Quý'];
+const CHI = ['Tý','Sửu','Dần','Mão','Thìn','Tỵ','Ngọ','Mùi','Thân','Dậu','Tuất','Hợi'];
+const TIET_KHI = {1:'Tiểu hàn · Đại hàn',2:'Lập xuân · Vũ thủy',3:'Kinh trập · Xuân phân',4:'Thanh minh · Cốc vũ',5:'Lập hạ · Tiểu mãn',6:'Mang chủng · Hạ chí',7:'Tiểu thử · Đại thử',8:'Lập thu · Xử thử',9:'Bạch lộ · Thu phân',10:'Hàn lộ · Sương giáng',11:'Lập đông · Tiểu tuyết',12:'Đại tuyết · Đông chí'};
+
+function pad2(n){return n<10?'0'+n:''+n}
+
+function solarToLunar(y,m,d){
+  // Anchor: 2025-01-01 solar = Mùng 2 tháng Chạp (12) năm Giáp Thìn (2024 lunar)
+  const anchor={jd:2460677,ld:2,lm:12,ly:2024};
+  const jd=Math.floor((1461*(y+4800+Math.floor((m-14)/12)))/4)
+    +Math.floor((367*(m-2-12*Math.floor((m-14)/12)))/12)
+    -Math.floor((3*Math.floor((y+4900+Math.floor((m-14)/12))/100))/4)+d-32075;
+  const diff=jd-anchor.jd;
+  const totalLD=anchor.ld-1+diff;
+  const approxM=Math.floor(totalLD/29.53059);
+  let dayInM=Math.round(totalLD-approxM*29.53059)+1;
+  if(dayInM<1)dayInM=1;
+  if(dayInM>30)dayInM=30;
+  const lm=((anchor.lm-1+approxM)%12+12)%12+1;
+  const ly=anchor.ly+Math.floor((anchor.lm-1+approxM)/12);
+  return{day:dayInM,month:lm,year:ly};
+}
+function getCanChi(yr){return CAN[(yr-4)%10]+' '+CHI[(yr-4)%12]}
+
+/* ─────────────────────────────────────────────────────
+   CALENDAR RENDER
+───────────────────────────────────────────────────── */
+function renderCalendar(){
+  const now=new Date();
+  const y=now.getFullYear(),mo=now.getMonth()+1,d=now.getDate(),dow=now.getDay();
+  document.getElementById('headerDate').textContent=DAYS_VI[dow]+', '+pad2(d)+'/'+pad2(mo)+'/'+y+' – Nhiệt độ & thời tiết Hải Phòng';
+  document.getElementById('calDow').textContent=DAYS_VI[dow]+', '+pad2(d)+'/'+pad2(mo)+'/'+y;
+  document.getElementById('solarDay').textContent=d;
+  document.getElementById('solarMonthYear').textContent=MONTHS_VI[mo-1]+' năm '+y;
+  document.getElementById('solarFull').textContent='Ngày: '+pad2(d)+'-'+pad2(mo)+'-'+y;
+
+  const lunar=solarToLunar(y,mo,d);
+  document.getElementById('lunarDay').textContent=lunar.day;
+  document.getElementById('lunarMonthYear').textContent='Tháng '+lunar.month+' năm '+lunar.year;
+  document.getElementById('lunarCan').textContent='('+getCanChi(lunar.year)+')';
+
+  const seed=y*366+mo*31+d;
+  const canNgayIdx=seed%10;
+  const chiNgayIdx=seed%12;
+  const canThangIdx=(mo+y*12)%10;
+  const chiThangIdx=(mo+y*12)%12;
+  document.getElementById('calDetail').innerHTML=
+    '<b>Can chi:</b> Ngày '+CAN[canNgayIdx]+' '+CHI[chiNgayIdx]+
+    ', Tháng '+CAN[canThangIdx]+' '+CHI[chiThangIdx]+
+    '&nbsp;|&nbsp;<b>Tiết khí:</b> '+(TIET_KHI[mo]||'');
+
+  // Giờ hoàng đạo / hắc đạo (standard by can ngày)
+  const goodSets=[
+    ['Tý (23-1h)','Sửu (1-3h)','Thìn (7-9h)','Tỵ (9-11h)','Mùi (13-15h)','Tuất (19-21h)'],
+    ['Dần (3-5h)','Mão (5-7h)','Ngọ (11-13h)','Thân (15-17h)','Dậu (17-19h)','Hợi (21-23h)'],
+  ];
+  const goodHrs=goodSets[canNgayIdx%2];
+  const badHrs=goodSets[(canNgayIdx+1)%2];
+  document.getElementById('goodHours').innerHTML='<b style="color:#065f46">✦</b> '+goodHrs.join(' · ');
+  document.getElementById('badHours').innerHTML='<b style="color:#991b1b">✦</b> '+badHrs.join(' · ');
+}
+
+/* ─────────────────────────────────────────────────────
+   WEATHER ICONS
+───────────────────────────────────────────────────── */
+function wmoIcon(code,isDay){
+  const d=isDay!==false;
+  if(code===0)return d?'☀️':'🌙';
+  if(code<=2)return d?'🌤️':'☁️';
+  if(code===3)return '☁️';
+  if(code<=49)return '🌫️';
+  if(code<=59)return '🌦️';
+  if(code<=69)return '🌨️';
+  if(code<=79)return '❄️';
+  if(code<=82)return '🌧️';
+  if(code<=84)return '🌨️';
+  if(code<=99)return '⛈️';
+  return '🌡️';
+}
+function wmoDesc(code){
+  if(code===0)return 'Trời quang';
+  if(code<=2)return 'Có mây';
+  if(code===3)return 'Nhiều mây';
+  if(code<=49)return 'Sương mù';
+  if(code<=59)return 'Mưa phùn';
+  if(code<=69)return 'Mưa';
+  if(code<=79)return 'Tuyết';
+  if(code<=82)return 'Mưa rào';
+  if(code<=84)return 'Mưa tuyết';
+  if(code<=99)return 'Dông bão';
+  return 'Không rõ';
+}
+
+/* ─────────────────────────────────────────────────────
+   FETCH WEATHER – Open-Meteo (free, no key)
+   Lat/Lon: Hải Phòng 20.8529, 106.6833
+───────────────────────────────────────────────────── */
+const LAT=20.8529, LON=106.6833;
+
+async function fetchWeather(){
+  const url=`https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}`+
+    `&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,`+
+    `weather_code,uv_index,visibility,surface_pressure,dew_point_2m,is_day`+
+    `&hourly=temperature_2m,precipitation_probability,weather_code,wind_speed_10m`+
+    `&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset`+
+    `&timezone=Asia%2FHo_Chi_Minh&forecast_days=7`;
+  const res=await fetch(url);
+  if(!res.ok)throw new Error('HTTP '+res.status);
+  return res.json();
+}
+
+function renderWeatherNow(c){
+  const temp=Math.round(c.temperature_2m);
+  const feel=Math.round(c.apparent_temperature);
+  const hum=c.relative_humidity_2m;
+  const wind=Math.round(c.wind_speed_10m);
+  const uv=c.uv_index.toFixed(1);
+  const vis=c.visibility>=1000?(c.visibility/1000).toFixed(0)+' km':(c.visibility+' m');
+  const pres=Math.round(c.surface_pressure);
+  const dew=Math.round(c.dew_point_2m);
+  const desc=wmoDesc(c.weather_code);
+  const icon=wmoIcon(c.weather_code,c.is_day);
+
+  document.getElementById('weatherNow').innerHTML=`
+    <div class="wn-top">
+      <div class="wn-temp-block">
+        <div>
+          <div style="font-size:36px;margin-bottom:-6px">${icon}</div>
+          <div class="wn-temp">${temp}°</div>
+        </div>
+        <div class="wn-info">
+          <div class="wn-desc">${desc}</div>
+          <div class="wn-feel">Cảm giác như ${feel}°</div>
+          <div class="wn-chips">
+            <span>💧 ${hum}%</span>
+            <span>💨 ${wind} km/h</span>
+          </div>
+        </div>
+      </div>
+      <div class="wn-stats">
+        <div class="ws-box"><div class="ws-label">Chỉ số UV</div><div class="ws-val">${uv}</div><div class="ws-sub">${uvLabel(c.uv_index)}</div></div>
+        <div class="ws-box"><div class="ws-label">Tầm nhìn</div><div class="ws-val">${vis}</div></div>
+        <div class="ws-box"><div class="ws-label">Áp suất</div><div class="ws-val">${pres}</div><div class="ws-sub">hPa</div></div>
+        <div class="ws-box"><div class="ws-label">Điểm sương</div><div class="ws-val">${dew}°</div></div>
+      </div>
+    </div>
+  `;
+}
+
+function uvLabel(v){
+  if(v<3)return 'Thấp';
+  if(v<6)return 'Trung bình';
+  if(v<8)return 'Cao';
+  if(v<11)return 'Rất cao';
+  return 'Cực cao';
+}
+
+function renderHourly(hourly){
+  const now=new Date();
+  const curH=now.getHours();
+  // Find index of current hour in API times
+  const times=hourly.time;
+  const todayStr=now.toISOString().slice(0,10);
+  let startIdx=times.findIndex(t=>t.startsWith(todayStr)&&parseInt(t.slice(11,13))===curH);
+  if(startIdx<0)startIdx=0;
+
+  const container=document.getElementById('hourForecast');
+  container.innerHTML='';
+  for(let i=0;i<24&&startIdx+i<times.length;i++){
+    const idx=startIdx+i;
+    const t=new Date(times[idx]);
+    const h=t.getHours();
+    const isNow=i===0;
+    const temp=Math.round(hourly.temperature_2m[idx]);
+    const rain=hourly.precipitation_probability[idx]||0;
+    const wind=Math.round(hourly.wind_speed_10m[idx]);
+    const wcode=hourly.weather_code[idx];
+    const isDay=h>=6&&h<=18;
+    const div=document.createElement('div');
+    div.className='hour-card'+(isNow?' active':'');
+    div.innerHTML=`
+      <div class="hc-time">${isNow?'Bây giờ':pad2(h)+':00'}</div>
+      <div class="hc-icon">${wmoIcon(wcode,isDay)}</div>
+      <div class="hc-temp">${temp}°</div>
+      <div class="hc-rain">💧 ${rain}%</div>
+      <div class="hc-wind">💨 ${wind} km/h</div>
+      <div class="hc-desc">${wmoDesc(wcode)}</div>
+    `;
+    container.appendChild(div);
+  }
+}
+
+function renderWeekly(daily){
+  const container=document.getElementById('weekForecast');
+  container.innerHTML='';
+  const now=new Date();
+  daily.time.forEach((dateStr,i)=>{
+    const dt=new Date(dateStr+'T12:00:00');
+    const dow=dt.getDay();
+    const isToday=i===0;
+    const isTomorrow=i===1;
+    const label=isToday?'Hôm nay':isTomorrow?'Ngày mai':DAYS_VI[dow];
+    const hi=Math.round(daily.temperature_2m_max[i]);
+    const lo=Math.round(daily.temperature_2m_min[i]);
+    const desc=wmoDesc(daily.weather_code[i]);
+    const icon=wmoIcon(daily.weather_code[i],true);
+    const row=document.createElement('div');
+    row.className='day-row';
+    row.innerHTML=`
+      <div class="dr-day">
+        <div class="dr-day-name${isToday?' today':''}">${label}</div>
+        <div class="dr-date">${pad2(dt.getDate())}/${pad2(dt.getMonth()+1)}</div>
+      </div>
+      <div class="dr-weather"><span class="dr-icon">${icon}</span> ${desc}</div>
+      <div class="dr-temp">${hi}°<span class="dr-temp-lo">${lo}°</span></div>
+    `;
+    container.appendChild(row);
+  });
+}
+
+function renderSunriseSunset(daily){
+  if(daily.sunrise&&daily.sunrise[0]){
+    document.getElementById('sunrise').textContent=daily.sunrise[0].slice(11,16);
+  }
+  if(daily.sunset&&daily.sunset[0]){
+    document.getElementById('sunset').textContent=daily.sunset[0].slice(11,16);
+  }
+}
+
+/* ─────────────────────────────────────────────────────
+   TIDE CHART (mock – no free tide API available)
+───────────────────────────────────────────────────── */
+function renderTideChart(){
+  const ctx=document.getElementById('tideChart').getContext('2d');
+  new Chart(ctx,{
+    type:'line',
+    data:{
+      labels:['09:00','12:00','15:00','18:00','21:00','00:00','03:00','06:00','09:00'],
+      datasets:[{
+        data:[3.5,3.2,0.5,-1.0,1.2,3.8,2.5,1.0,2.8],
+        borderColor:'#0ea5e9',
+        backgroundColor:'rgba(14,165,233,.1)',
+        fill:true,tension:.4,borderWidth:2.5,
+        pointRadius:4,pointBackgroundColor:'#fff',pointBorderColor:'#0ea5e9',pointBorderWidth:2
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:v=>v.parsed.y.toFixed(2)+' m'}}},
+      scales:{
+        y:{min:-2,max:4.5,ticks:{stepSize:1,color:'#94a3b8',font:{size:10}},grid:{color:'rgba(0,0,0,.05)'}},
+        x:{ticks:{color:'#94a3b8',font:{size:10}},grid:{display:false}}
+      }
+    }
+  });
+}
+
+/* ─────────────────────────────────────────────────────
+   UPDATE TIME
+───────────────────────────────────────────────────── */
+function setUpdateTime(){
+  const now=new Date();
+  document.getElementById('updateTime').textContent='Cập nhật '+pad2(now.getHours())+':'+pad2(now.getMinutes());
+}
+
+/* ─────────────────────────────────────────────────────
+   MAIN
+───────────────────────────────────────────────────── */
+async function main(){
+  renderCalendar();
+  renderTideChart();
+  setUpdateTime();
+
+  try{
+    const data=await fetchWeather();
+    renderWeatherNow(data.current);
+    renderHourly(data.hourly);
+    renderWeekly(data.daily);
+    renderSunriseSunset(data.daily);
+  }catch(err){
+    console.error(err);
+    document.getElementById('weatherNow').innerHTML=`
+      <div style="padding:16px">
+        <div class="error-msg"><i class="fa-solid fa-triangle-exclamation"></i> Không thể tải dữ liệu thời tiết. Vui lòng kiểm tra kết nối mạng.</div>
+        <div style="margin-top:10px;font-size:11px;color:rgba(255,255,255,.6)">Đang dùng dữ liệu dự phòng...</div>
+      </div>`;
+    renderFallback();
+  }
+}
+
+function renderFallback(){
+  // Fallback hourly (static)
+  const container=document.getElementById('hourForecast');
+  container.innerHTML='';
+  const fallback=[
+    {t:'Bây giờ',i:'☁️',temp:27,rain:35,wind:13,desc:'Nhiều mây'},
+    {t:'10:00',i:'🌦️',temp:28,rain:40,wind:14,desc:'Khả năng mưa'},
+    {t:'12:00',i:'⛈️',temp:29,rain:65,wind:20,desc:'Dông bão'},
+    {t:'15:00',i:'🌧️',temp:27,rain:50,wind:16,desc:'Mưa vừa'},
+    {t:'18:00',i:'⛅',temp:26,rain:15,wind:11,desc:'Có mây'},
+    {t:'21:00',i:'🌙',temp:25,rain:5,wind:9,desc:'Quang mây'},
+  ];
+  fallback.forEach((item,i)=>{
+    const div=document.createElement('div');
+    div.className='hour-card'+(i===0?' active':'');
+    div.innerHTML=`<div class="hc-time">${item.t}</div><div class="hc-icon">${item.i}</div><div class="hc-temp">${item.temp}°</div><div class="hc-rain">💧 ${item.rain}%</div><div class="hc-wind">💨 ${item.wind} km/h</div><div class="hc-desc">${item.desc}</div>`;
+    container.appendChild(div);
+  });
+
+  // Fallback weekly
+  const wf=document.getElementById('weekForecast');
+  wf.innerHTML='';
+  const now=new Date();
+  [['⛈️','Dông bão',29,24],['⛅','Nhiều mây',32,24],['⛈️','Dông bão',30,24],['⛈️','Dông bão',30,24],['⛅','Nhiều mây',30,24],['🌤️','Có nắng',31,25],['⛅','Mây rải rác',32,25]].forEach(([icon,desc,hi,lo],i)=>{
+    const dt=new Date(now);dt.setDate(dt.getDate()+i);
+    const row=document.createElement('div');
+    row.className='day-row';
+    row.innerHTML=`<div class="dr-day"><div class="dr-day-name${i===0?' today':''}">${i===0?'Hôm nay':i===1?'Ngày mai':DAYS_VI[dt.getDay()]}</div><div class="dr-date">${pad2(dt.getDate())}/${pad2(dt.getMonth()+1)}</div></div><div class="dr-weather"><span class="dr-icon">${icon}</span> ${desc}</div><div class="dr-temp">${hi}°<span class="dr-temp-lo">${lo}°</span></div>`;
+    wf.appendChild(row);
+  });
+}
+
+main();
+</script>
 </body>
 </html>
