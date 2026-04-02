@@ -1,532 +1,292 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thời Tiết Hải Phòng</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thời Tiết Hải Phòng</title>
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 20px;
-        }
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
 
-        .weather-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        }
+html,body{
+    max-width:100vw;
+    overflow-x:hidden;
+    font-family:'Segoe UI',Tahoma;
+    background:linear-gradient(135deg,#667eea,#764ba2);
+}
 
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
+/* ===== CONTAINER ===== */
+.weather-container{
+    max-width:1100px;
+    margin:auto;
+    background:#fff;
+    border-radius:20px;
+    padding:20px;
+    box-shadow:0 15px 50px rgba(0,0,0,.2)
+}
 
-        .header h1 {
-            color: #333;
-            font-size: 2.5em;
-            margin-bottom: 10px;
-        }
+/* ===== HEADER ===== */
+.header{text-align:center;margin-bottom:20px}
+.header h1{font-size:2em}
+.update-time{font-size:.9em;color:#666}
 
-        .header .update-time {
-            color: #666;
-            font-size: 0.9em;
-        }
+/* ===== CURRENT ===== */
+.current-weather{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
+    background:linear-gradient(135deg,#667eea,#764ba2);
+    color:#fff;
+    padding:20px;
+    border-radius:15px
+}
 
-        .current-weather {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-bottom: 30px;
-            padding: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 15px;
-            color: white;
-        }
+.current-main{
+    display:flex;
+    align-items:center;
+    gap:15px
+}
 
-        .current-main {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
+.current-icon{font-size:80px}
+.current-temp{font-size:3.5em;font-weight:bold}
 
-        .current-icon {
-            font-size: 100px;
-        }
+.current-details{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px
+}
 
-        .current-temp {
-            font-size: 4em;
-            font-weight: bold;
-        }
+.detail-item{
+    background:rgba(255,255,255,.2);
+    padding:10px;
+    border-radius:10px;
+    font-size:.9em
+}
 
-        .current-desc {
-            font-size: 1.2em;
-            text-transform: capitalize;
-            margin-top: 10px;
-        }
+/* ===== SECTION ===== */
+.section-title{
+    margin:25px 0 10px;
+    border-bottom:2px solid #667eea;
+    padding-bottom:5px
+}
 
-        .current-details {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
+/* ===== FORECAST ===== */
+.hourly-forecast,
+.daily-forecast{
+    display:grid;
+    gap:10px
+}
 
-        .detail-item {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 15px;
-            border-radius: 10px;
-            backdrop-filter: blur(10px);
-        }
+.hourly-forecast{
+    grid-template-columns:repeat(auto-fit,minmax(90px,1fr))
+}
 
-        .detail-label {
-            font-size: 0.9em;
-            opacity: 0.9;
-            margin-bottom: 5px;
-        }
+.daily-forecast{
+    grid-template-columns:repeat(auto-fit,minmax(120px,1fr))
+}
 
-        .detail-value {
-            font-size: 1.5em;
-            font-weight: bold;
-        }
+.hourly-item,
+.daily-item{
+    background:#f5f7fa;
+    padding:12px;
+    border-radius:10px;
+    text-align:center;
+    word-break:break-word
+}
 
-        .forecast-section {
-            margin-bottom: 30px;
-        }
+.daily-item{border:1px solid #ddd}
 
-        .section-title {
-            font-size: 1.5em;
-            color: #333;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 3px solid #667eea;
-        }
+/* ===== STATE ===== */
+.loading,.error{
+    text-align:center;
+    padding:40px
+}
 
-        .hourly-forecast {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 15px;
-            margin-bottom: 30px;
-        }
+/* ===== MOBILE FIX ===== */
+@media (max-width:768px){
+    .weather-container{padding:15px}
 
-        .hourly-item {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            transition: transform 0.3s;
-        }
+    .current-weather{
+        grid-template-columns:1fr;
+    }
 
-        .hourly-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
+    .current-temp{font-size:2.5em}
+    .current-icon{font-size:60px}
 
-        .hourly-time {
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 10px;
-        }
+    .hourly-forecast{
+        grid-template-columns:repeat(auto-fit,minmax(80px,1fr))
+    }
 
-        .hourly-icon {
-            font-size: 40px;
-            margin: 10px 0;
-        }
+    .daily-forecast{
+        grid-template-columns:repeat(auto-fit,minmax(100px,1fr))
+    }
+}
 
-        .hourly-temp {
-            font-size: 1.3em;
-            font-weight: bold;
-            color: #667eea;
-        }
+@media (max-width:480px){
+    .header h1{font-size:1.4em}
+    .current-temp{font-size:2em}
 
-        .hourly-desc {
-            font-size: 0.85em;
-            color: #666;
-            margin-top: 5px;
-        }
+    .current-details{
+        grid-template-columns:1fr;
+    }
 
-        .daily-forecast {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-        }
+    .hourly-forecast{
+        grid-template-columns:repeat(4,1fr)
+    }
 
-        .daily-item {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            border: 2px solid #e0e0e0;
-            transition: all 0.3s;
-        }
-
-        .daily-item:hover {
-            border-color: #667eea;
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
-        }
-
-        .daily-date {
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 1.1em;
-        }
-
-        .daily-icon {
-            font-size: 50px;
-            margin: 15px 0;
-        }
-
-        .daily-temp {
-            font-size: 1.2em;
-            color: #667eea;
-            margin: 10px 0;
-        }
-
-        .daily-temp-range {
-            font-size: 0.9em;
-            color: #666;
-        }
-
-        .daily-desc {
-            font-size: 0.9em;
-            color: #666;
-            margin-top: 10px;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 50px;
-            font-size: 1.5em;
-            color: #667eea;
-        }
-
-        .error {
-            text-align: center;
-            padding: 50px;
-            font-size: 1.2em;
-            color: #e74c3c;
-        }
-
-        .air-quality {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            padding: 20px;
-            border-radius: 15px;
-            color: white;
-            margin-bottom: 30px;
-        }
-
-        .aqi-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
-        }
-
-        .aqi-item {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-        }
-
-        .aqi-value {
-            font-size: 2em;
-            font-weight: bold;
-        }
-
-        .aqi-label {
-            font-size: 0.9em;
-            margin-top: 5px;
-        }
-
-        @media (max-width: 768px) {
-            .current-weather {
-                grid-template-columns: 1fr;
-            }
-
-            .header h1 {
-                font-size: 1.8em;
-            }
-
-            .current-temp {
-                font-size: 3em;
-            }
-
-            .hourly-forecast,
-            .daily-forecast {
-                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-            }
-        }
-    </style>
+    .daily-forecast{
+        grid-template-columns:repeat(2,1fr)
+    }
+}
+</style>
 </head>
-<body>
-    <div class="weather-container">
-        <div class="header">
-            <h1>🌤️ Thời Tiết Hải Phòng</h1>
-            <div class="update-time" id="updateTime">Đang tải...</div>
-        </div>
 
-        <div id="weatherContent" class="loading">
-            <div>⏳ Đang tải dữ liệu thời tiết...</div>
+<body>
+<div class="weather-container">
+
+    <div class="header">
+        <h1>🌤️ Thời Tiết Hải Phòng</h1>
+        <div id="updateTime">Đang tải...</div>
+    </div>
+
+    <div id="weatherContent" class="loading">⏳ Đang tải dữ liệu...</div>
+
+</div>
+
+<script>
+const API_KEY="cd3f77eb664f34468e29b27cfabe2425";
+const CITY="Haiphong";
+
+/* ICON */
+const icons={
+'01d':'☀️','01n':'🌙','02d':'⛅','02n':'☁️',
+'03d':'☁️','04d':'☁️','09d':'🌧️','10d':'🌦️',
+'11d':'⛈️','13d':'❄️','50d':'🌫️'
+};
+const icon=i=>icons[i]||'🌤️';
+
+/* TIME */
+function formatTime(ts,tz){
+    const d=new Date((ts+tz)*1000);
+    return d.getUTCHours()+":00";
+}
+
+function formatDate(ts,tz){
+    const d=new Date((ts+tz)*1000);
+    const day=d.getUTCDay();
+    const days=["CN","T2","T3","T4","T5","T6","T7"];
+    return days[day]+" "+d.getUTCDate()+"/"+(d.getUTCMonth()+1);
+}
+
+/* FETCH */
+async function loadWeather(){
+try{
+    const [cur,fc]=await Promise.all([
+        fetch(`https://api.openweathermap.org/data/2.5/weather?q=${CITY},VN&appid=${API_KEY}&units=metric&lang=vi`).then(r=>r.json()),
+        fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${CITY},VN&appid=${API_KEY}&units=metric&lang=vi`).then(r=>r.json())
+    ]);
+
+    if(cur.cod!=200) throw "API lỗi";
+
+    const tz=cur.timezone||0;
+
+    document.getElementById("updateTime").innerHTML=
+        "Cập nhật: "+new Date().toLocaleString("vi-VN");
+
+    render(cur,fc,tz);
+
+}catch(e){
+    document.getElementById("weatherContent").innerHTML=
+    "<div class='error'>❌ Không tải được dữ liệu</div>";
+}
+}
+
+/* RENDER */
+function render(cur,fc,tz){
+
+const html=`
+<div class="current-weather">
+
+    <div class="current-main">
+        <div class="current-icon">${icon(cur.weather[0].icon)}</div>
+        <div>
+            <div class="current-temp">${Math.round(cur.main.temp)}°C</div>
+            <div>${cur.weather[0].description}</div>
         </div>
     </div>
 
-    <script>
-        // API Keys
-        const WEATHER_API_KEY = 'd7340f8e469a4de5b0b44202260703';
-        const OPENWEATHER_API_KEY = 'cd3f77eb664f34468e29b27cfabe2425';
-        const CITY = 'Haiphong';
-        const LAT = 20.8449;
-        const LON = 106.6881;
+    <div class="current-details">
+        <div class="detail-item">💧 ${cur.main.humidity}%</div>
+        <div class="detail-item">🌡️ ${Math.round(cur.main.feels_like)}°C</div>
+        <div class="detail-item">💨 ${Math.round(cur.wind.speed*3.6)} km/h</div>
+        <div class="detail-item">☁️ ${cur.clouds.all}%</div>
+    </div>
 
-        // Weather icon mapping
-        const weatherIcons = {
-            '01d': '☀️', '01n': '🌙',
-            '02d': '⛅', '02n': '☁️',
-            '03d': '☁️', '03n': '☁️',
-            '04d': '☁️', '04n': '☁️',
-            '09d': '🌧️', '09n': '🌧️',
-            '10d': '🌦️', '10n': '🌧️',
-            '11d': '⛈️', '11n': '⛈️',
-            '13d': '❄️', '13n': '❄️',
-            '50d': '🌫️', '50n': '🌫️'
-        };
+</div>
 
-        function getWeatherIcon(code) {
-            return weatherIcons[code] || '🌤️';
-        }
+<h3 class="section-title">⏰ 24h tới</h3>
+<div class="hourly-forecast">
+${fc.list.slice(0,8).map(i=>`
+    <div class="hourly-item">
+        <div>${formatTime(i.dt,tz)}</div>
+        <div>${icon(i.weather[0].icon)}</div>
+        <div>${Math.round(i.main.temp)}°</div>
+    </div>
+`).join("")}
+</div>
 
-        function formatDate(timestamp) {
-            const date = new Date(timestamp * 1000);
-            const days = ['Chủ Nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
-            return days[date.getDay()] + ', ' + date.getDate() + '/' + (date.getMonth() + 1);
-        }
+<h3 class="section-title">📅 5 ngày</h3>
+<div class="daily-forecast">
+${groupDay(fc.list,tz).map(d=>`
+    <div class="daily-item">
+        <div>${formatDate(d.dt,tz)}</div>
+        <div>${icon(d.icon)}</div>
+        <div>${Math.round(d.temp)}°</div>
+    </div>
+`).join("")}
+</div>
+`;
 
-        function formatTime(timestamp) {
-            const date = new Date(timestamp * 1000);
-            return date.getHours() + ':00';
-        }
-
-        function translateWeather(desc) {
-            const translations = {
-                'clear sky': 'Trời quang đãng',
-                'few clouds': 'Ít mây',
-                'scattered clouds': 'Mây rải rác',
-                'broken clouds': 'Nhiều mây',
-                'overcast clouds': 'U ám',
-                'shower rain': 'Mưa rào',
-                'rain': 'Mưa',
-                'light rain': 'Mưa nhẹ',
-                'moderate rain': 'Mưa vừa',
-                'heavy rain': 'Mưa to',
-                'thunderstorm': 'Dông bão',
-                'snow': 'Tuyết',
-                'mist': 'Sương mù',
-                'fog': 'Sương mù dày',
-                'haze': 'Sương mù nhẹ'
-            };
-            return translations[desc.toLowerCase()] || desc;
-        }
-
-        async function getWeatherData() {
-            try {
-                const [currentData, forecastData, airQualityData] = await Promise.all([
-                    fetch(`https://api.openweathermap.org/data/2.5/weather?q=${CITY},VN&appid=${OPENWEATHER_API_KEY}&units=metric&lang=vi`).then(r => r.json()),
-                    fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${CITY},VN&appid=${OPENWEATHER_API_KEY}&units=metric&lang=vi`).then(r => r.json()),
-                    fetch(`https://api.openweathermap.org/data/2.5/air_pollution?lat=${LAT}&lon=${LON}&appid=${OPENWEATHER_API_KEY}`).then(r => r.json())
-                ]);
-
-                if (currentData.cod !== 200) {
-                    throw new Error('Không thể tải dữ liệu thời tiết');
-                }
-
-                displayWeather(currentData, forecastData, airQualityData);
-                
-                document.getElementById('updateTime').innerHTML = 
-                    `Cập nhật lúc: ${new Date().toLocaleString('vi-VN')}`;
-
-            } catch (error) {
-                console.error('Error:', error);
-                document.getElementById('weatherContent').innerHTML = 
-                    `<div class="error">❌ Không thể tải dữ liệu thời tiết. Vui lòng thử lại sau.</div>`;
-            }
-        }
-
-        function displayWeather(current, forecast, airQuality) {
-            const html = `
-                <div class="current-weather">
-                    <div class="current-main">
-                        <div class="current-icon">${getWeatherIcon(current.weather[0].icon)}</div>
-                        <div>
-                            <div class="current-temp">${Math.round(current.main.temp)}°C</div>
-                            <div class="current-desc">${translateWeather(current.weather[0].description)}</div>
-                        </div>
-                    </div>
-                    <div class="current-details">
-                        <div class="detail-item">
-                            <div class="detail-label">💧 Độ ẩm</div>
-                            <div class="detail-value">${current.main.humidity}%</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">🌡️ Cảm giác</div>
-                            <div class="detail-value">${Math.round(current.main.feels_like)}°C</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">💨 Gió</div>
-                            <div class="detail-value">${Math.round(current.wind.speed * 3.6)} km/h</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">🔽 Áp suất</div>
-                            <div class="detail-value">${current.main.pressure} hPa</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">👁️ Tầm nhìn</div>
-                            <div class="detail-value">${(current.visibility / 1000).toFixed(1)} km</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">☁️ Mây</div>
-                            <div class="detail-value">${current.clouds.all}%</div>
-                        </div>
-                    </div>
-                </div>
-
-                ${airQuality && airQuality.list ? `
-                <div class="air-quality">
-                    <h3 style="margin-bottom: 15px;">🌫️ Chất lượng không khí</h3>
-                    <div class="aqi-grid">
-                        <div class="aqi-item">
-                            <div class="aqi-value">${airQuality.list[0].main.aqi}</div>
-                            <div class="aqi-label">AQI</div>
-                        </div>
-                        <div class="aqi-item">
-                            <div class="aqi-value">${airQuality.list[0].components.pm2_5.toFixed(1)}</div>
-                            <div class="aqi-label">PM2.5</div>
-                        </div>
-                        <div class="aqi-item">
-                            <div class="aqi-value">${airQuality.list[0].components.pm10.toFixed(1)}</div>
-                            <div class="aqi-label">PM10</div>
-                        </div>
-                        <div class="aqi-item">
-                            <div class="aqi-value">${airQuality.list[0].components.o3.toFixed(1)}</div>
-                            <div class="aqi-label">O₃</div>
-                        </div>
-                        <div class="aqi-item">
-                            <div class="aqi-value">${airQuality.list[0].components.no2.toFixed(1)}</div>
-                            <div class="aqi-label">NO₂</div>
-                        </div>
-                        <div class="aqi-item">
-                            <div class="aqi-value">${airQuality.list[0].components.co.toFixed(1)}</div>
-                            <div class="aqi-label">CO</div>
-                        </div>
-                    </div>
-                </div>
-                ` : ''}
-
-                <div class="forecast-section">
-                    <h2 class="section-title">⏰ Dự báo theo giờ</h2>
-                    <div class="hourly-forecast">
-                        ${forecast.list.slice(0, 8).map(item => `
-                            <div class="hourly-item">
-                                <div class="hourly-time">${formatTime(item.dt)}</div>
-                                <div class="hourly-icon">${getWeatherIcon(item.weather[0].icon)}</div>
-                                <div class="hourly-temp">${Math.round(item.main.temp)}°C</div>
-                                <div class="hourly-desc">${translateWeather(item.weather[0].description)}</div>
-                                <div style="font-size: 0.8em; color: #888; margin-top: 5px;">
-                                    💧 ${item.main.humidity}% | 💨 ${Math.round(item.wind.speed * 3.6)} km/h
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-
-                <div class="forecast-section">
-                    <h2 class="section-title">📅 Dự báo 5 ngày tới</h2>
-                    <div class="daily-forecast">
-                        ${getDailyForecast(forecast.list).map(day => `
-                            <div class="daily-item">
-                                <div class="daily-date">${formatDate(day.dt)}</div>
-                                <div class="daily-icon">${getWeatherIcon(day.icon)}</div>
-                                <div class="daily-temp">${Math.round(day.temp)}°C</div>
-                                <div class="daily-temp-range">
-                                    ↑ ${Math.round(day.temp_max)}° ↓ ${Math.round(day.temp_min)}°
-                                </div>
-                                <div class="daily-desc">${translateWeather(day.description)}</div>
-                                <div style="font-size: 0.85em; color: #888; margin-top: 10px;">
-                                    💧 ${day.humidity}%<br>
-                                    💨 ${Math.round(day.wind_speed * 3.6)} km/h
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-            `;
-
-            document.getElementById('weatherContent').innerHTML = html;
-        }
-
-        function getDailyForecast(list) {
-            const dailyData = {};
-            
-            list.forEach(item => {
-                const date = new Date(item.dt * 1000).toDateString();
-                
-                if (!dailyData[date]) {
-                    dailyData[date] = {
-                        dt: item.dt,
-                        temps: [],
-                        humidity: [],
-                        wind_speed: [],
-                        icon: item.weather[0].icon,
-                        description: item.weather[0].description
-                    };
-                }
-                
-                dailyData[date].temps.push(item.main.temp);
-                dailyData[date].humidity.push(item.main.humidity);
-                dailyData[date].wind_speed.push(item.wind.speed);
-            });
-
-            return Object.values(dailyData).slice(0, 5).map(day => ({
-                dt: day.dt,
-                temp: day.temps.reduce((a, b) => a + b) / day.temps.length,
-                temp_max: Math.max(...day.temps),
-                temp_min: Math.min(...day.temps),
-                humidity: Math.round(day.humidity.reduce((a, b) => a + b) / day.humidity.length),
-                wind_speed: day.wind_speed.reduce((a, b) => a + b) / day.wind_speed.length,
-                icon: day.icon,
-                description: day.description
-            }));
-        }
-
-        getWeatherData();
-        setInterval(getWeatherData, 600000); // Cập nhật mỗi 10 phút
-    </script>
-    <script>
-function sendHeight(){
-    const height = document.documentElement.scrollHeight;
-    parent.postMessage({
-        type: "weatherHeightHaiAn",
-        height: height
-    }, "*");
+document.getElementById("weatherContent").innerHTML=html;
+sendHeight();
 }
 
-// gọi nhiều lần để tránh lỗi API load chậm
-window.addEventListener("load", sendHeight);
-window.addEventListener("resize", sendHeight);
+/* GROUP DAY */
+function groupDay(list,tz){
+const map={};
 
-setTimeout(sendHeight, 500);
-setTimeout(sendHeight, 1500);
-setTimeout(sendHeight, 3000);
+list.forEach(i=>{
+    const key=new Date((i.dt+tz)*1000).toDateString();
+    if(!map[key]) map[key]={temps:[],dt:i.dt,icon:i.weather[0].icon};
+    map[key].temps.push(i.main.temp);
+});
+
+return Object.values(map).slice(0,5).map(d=>({
+    dt:d.dt,
+    temp:d.temps.reduce((a,b)=>a+b)/d.temps.length,
+    icon:d.icon
+}));
+}
+
+/* INIT */
+loadWeather();
+setInterval(loadWeather,600000);
 </script>
+
+<script>
+/* FIX IFRAME HEIGHT */
+function sendHeight(){
+    const h=document.body.scrollHeight;
+    parent.postMessage({
+        type:"weatherHeightHaiPhong",
+        height:h
+    },"*");
+}
+
+window.addEventListener("load",()=>setTimeout(sendHeight,500));
+window.addEventListener("resize",sendHeight);
+setInterval(sendHeight,2000);
+</script>
+
 </body>
 </html>
