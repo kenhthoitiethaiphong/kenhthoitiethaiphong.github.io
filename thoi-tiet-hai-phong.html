@@ -1,629 +1,515 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Thời Tiết Hải Phòng – thoitiethaiphong.com</title>
-<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#f0f4f8;--surface:#fff;--surface2:#f8fafc;--border:#e2e8f0;
-  --text:#1e293b;--muted:#64748b;--faint:#94a3b8;
-  --accent:#0ea5e9;--accent-dark:#0369a1;
-  --green:#10b981;--orange:#f97316;--red:#ef4444;
-  --shadow:0 1px 3px rgba(0,0,0,.06),0 4px 12px rgba(0,0,0,.06);--r:14px;
-}
-html{overflow-x:hidden}
-body{font-family:'Be Vietnam Pro',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;width:100%;overflow-x:hidden}
-.wrap{width:100%;max-width:100%;padding:12px;display:flex;flex-direction:column;gap:14px}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;width:100%}
-.card-head{padding:10px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)}
-.card-head h3{font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;color:var(--text)}
-.card-body{padding:16px}
-.badge{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:2px 8px;border-radius:20px;border:1px solid}
-.badge-blue{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe}
-/* HEADER */
-.site-header{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px}
-.site-title{font-size:15px;font-weight:700;display:flex;align-items:center;gap:6px}
-.site-title .pin{color:var(--red)}
-.site-date{font-size:11px;color:var(--muted);margin-top:3px}
-.update-badge{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:4px 10px;white-space:nowrap}
-.pulse{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
-/* CALENDAR */
-.cal-top{background:#065f46;color:#fff;padding:10px 16px;display:flex;justify-content:space-between;align-items:center}
-.cal-top span{font-size:12px;font-weight:500}
-.cal-top small{font-size:11px;opacity:.7}
-.cal-cols{display:grid;grid-template-columns:1fr 1fr}
-.cal-solar{padding:14px 16px;border-right:1px solid var(--border)}
-.cal-lunar{padding:14px 16px;background:#f0fdf4}
-.cal-lbl{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px}
-.cal-lbl.s{color:var(--orange)}.cal-lbl.l{color:#065f46}
-.cal-big{font-size:50px;font-weight:800;line-height:1}
-.cal-big.s{color:var(--orange)}.cal-big.l{color:#16a34a}
-.cal-name{font-size:12px;font-weight:600;margin-top:2px}
-.cal-name.s{color:var(--text)}.cal-name.l{color:#15803d}
-.cal-mini{font-size:10px;margin-top:2px}
-.cal-mini.s{color:var(--muted)}.cal-mini.l{color:#16a34a}
-.cal-detail{padding:11px 16px;border-top:1px solid var(--border);background:var(--surface2);font-size:11px;line-height:2;color:var(--muted)}
-.cal-detail b{color:var(--text)}
-/* WEATHER NOW */
-.wn{background:linear-gradient(135deg,#334155,#475569 60%,#64748b);color:#fff;border-radius:var(--r);padding:18px;box-shadow:var(--shadow)}
-.wn-main{display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap}
-.wn-left{display:flex;align-items:flex-start;gap:10px;flex:1;min-width:160px}
-.wn-temp{font-size:68px;font-weight:800;line-height:1;letter-spacing:-3px}
-.wn-desc{font-size:17px;font-weight:600;margin-top:8px}
-.wn-feel{font-size:12px;opacity:.75;margin-top:2px}
-.wn-chips{display:flex;gap:12px;margin-top:12px;font-size:12px;opacity:.85;flex-wrap:wrap}
-.wn-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;flex:1;min-width:200px}
-.ws{background:rgba(255,255,255,.1);border-radius:10px;padding:10px;border:1px solid rgba(255,255,255,.08)}
-.ws-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.07em;opacity:.6;margin-bottom:3px}
-.ws-val{font-size:17px;font-weight:700}
-.ws-sub{font-size:10px;opacity:.55;margin-top:1px}
-/* LOADER */
-.loader{display:flex;align-items:center;justify-content:center;gap:8px;padding:20px;color:var(--muted);font-size:12px}
-.spinner{width:15px;height:15px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
-@keyframes spin{to{transform:rotate(360deg)}}
-.err{padding:12px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;color:#991b1b;font-size:12px;display:flex;align-items:center;gap:7px}
-/* 24H */
-.h-scroll{display:flex;overflow-x:auto;gap:6px;padding-bottom:4px;scroll-snap-type:x mandatory}
-.h-scroll::-webkit-scrollbar{height:3px}
-.h-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
-.hc{min-width:74px;flex-shrink:0;background:var(--surface2);border:1px solid var(--border);border-radius:11px;padding:9px 6px;text-align:center;scroll-snap-align:start}
-.hc.now{background:#eff6ff;border-color:#bfdbfe}
-.hc-t{font-size:10px;color:var(--muted);font-weight:500;margin-bottom:4px}
-.hc-i{font-size:20px;margin:2px 0}
-.hc-tmp{font-size:15px;font-weight:700;color:var(--text);margin:3px 0}
-.hc-r{font-size:10px;color:#1d4ed8;font-weight:600;margin-top:2px}
-.hc-w{font-size:10px;color:var(--muted);margin-top:1px}
-.hc-d{font-size:9px;color:var(--muted);margin-top:2px;line-height:1.3}
-/* 7 NGÀY */
-.day-row{display:flex;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)}
-.day-row:last-child{border-bottom:none}
-.dr-day{width:84px;flex-shrink:0}
-.dr-dn{font-size:12px;font-weight:600;color:var(--text)}
-.dr-dn.today{color:var(--accent-dark)}
-.dr-dd{font-size:10px;color:var(--muted)}
-.dr-w{flex:1;display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)}
-.dr-i{font-size:17px}
-.dr-tmp{font-size:13px;font-weight:700;color:var(--text);text-align:right;white-space:nowrap}
-.dr-lo{font-weight:400;color:var(--faint);font-size:12px;margin-left:3px}
-/* TIDE */
-.tide-wrap{position:relative;height:180px}
-.tide-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
-.tb{border-radius:10px;padding:9px;text-align:center;border:1px solid}
-.tb .tl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
-.tb .tv{font-size:14px;font-weight:700;color:var(--text)}
-.tb-b{background:#eff6ff;border-color:#bfdbfe}.tb-b .tl{color:#1d4ed8}
-.tb-o{background:#fff7ed;border-color:#fed7aa}.tb-o .tl{color:#c2410c}
-.tb-p{background:#f5f3ff;border-color:#ddd6fe}.tb-p .tl{color:#7c3aed}
-/* GIỜ */
-.gd-block{background:var(--surface2);border-radius:10px;padding:10px 13px;font-size:11px;line-height:1.9;color:var(--muted)}
-/* MAP */
-.map-box{height:360px;width:100%}
-.map-box iframe{width:100%;height:100%;border:none;display:block}
-.map-foot{font-size:10px;color:var(--muted);padding:6px 10px;display:flex;align-items:center;gap:4px}
-@media(max-width:480px){
-  .cal-cols{grid-template-columns:1fr}
-  .cal-solar{border-right:none;border-bottom:1px solid var(--border)}
-  .tide-stats{grid-template-columns:1fr 1fr}
-  .wn-stats{grid-template-columns:1fr 1fr;width:100%}
-  .wn-main{flex-direction:column}
-  .wn-temp{font-size:54px}
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thời Tiết Hải Phòng</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+
+        .weather-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header .update-time {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .current-weather {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            color: white;
+        }
+
+        .current-main {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .current-icon {
+            font-size: 100px;
+        }
+
+        .current-temp {
+            font-size: 4em;
+            font-weight: bold;
+        }
+
+        .current-desc {
+            font-size: 1.2em;
+            text-transform: capitalize;
+            margin-top: 10px;
+        }
+
+        .current-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .detail-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .detail-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .forecast-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .hourly-forecast {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .hourly-item {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .hourly-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .hourly-time {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .hourly-icon {
+            font-size: 40px;
+            margin: 10px 0;
+        }
+
+        .hourly-temp {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .hourly-desc {
+            font-size: 0.85em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .daily-forecast {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .daily-item {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s;
+        }
+
+        .daily-item:hover {
+            border-color: #667eea;
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .daily-date {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .daily-icon {
+            font-size: 50px;
+            margin: 15px 0;
+        }
+
+        .daily-temp {
+            font-size: 1.2em;
+            color: #667eea;
+            margin: 10px 0;
+        }
+
+        .daily-temp-range {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .daily-desc {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.5em;
+            color: #667eea;
+        }
+
+        .error {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.2em;
+            color: #e74c3c;
+        }
+
+        .air-quality {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 20px;
+            border-radius: 15px;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .aqi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .aqi-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .aqi-value {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .aqi-label {
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .current-weather {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .current-temp {
+                font-size: 3em;
+            }
+
+            .hourly-forecast,
+            .daily-forecast {
+                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            }
+        }
+    </style>
 </head>
 <body>
-<div class="wrap">
+    <div class="weather-container">
+        <div class="header">
+            <h1>🌤️ Thời Tiết Hải Phòng</h1>
+            <div class="update-time" id="updateTime">Đang tải...</div>
+        </div>
 
-  <div class="site-header">
-    <div>
-      <div class="site-title">
-        <i class="fa-solid fa-location-dot pin"></i>
-        Hải Phòng (Trung tâm)
-        <span style="font-weight:400;color:var(--muted);font-size:13px">· Thời tiết hôm nay</span>
-      </div>
-      <div class="site-date" id="headerDate">Đang tải...</div>
+        <div id="weatherContent" class="loading">
+            <div>⏳ Đang tải dữ liệu thời tiết...</div>
+        </div>
     </div>
-    <div class="update-badge">
-      <div class="pulse"></div>
-      <span id="updateTime">Đang cập nhật...</span>
-    </div>
-  </div>
 
-  <!-- LỊCH -->
-  <div class="card">
-    <div class="cal-top">
-      <span><i class="fa-solid fa-calendar-check" style="margin-right:5px"></i>Lịch hôm nay</span>
-      <small id="calDow"></small>
-    </div>
-    <div class="cal-cols">
-      <div class="cal-solar">
-        <div class="cal-lbl s">Dương lịch</div>
-        <div class="cal-big s" id="sDay">–</div>
-        <div class="cal-name s" id="sMonthYear"></div>
-        <div class="cal-mini s" id="sFull"></div>
-      </div>
-      <div class="cal-lunar">
-        <div class="cal-lbl l">Âm lịch</div>
-        <div class="cal-big l" id="lDay">–</div>
-        <div class="cal-name l" id="lMonthYear"></div>
-        <div class="cal-mini l" id="lCan"></div>
-      </div>
-    </div>
-    <div class="cal-detail" id="calDetail">Đang tính...</div>
-  </div>
+    <script>
+        // API Keys
+        const WEATHER_API_KEY = 'd7340f8e469a4de5b0b44202260703';
+        const OPENWEATHER_API_KEY = 'cd3f77eb664f34468e29b27cfabe2425';
+        const CITY = 'Haiphong';
+        const LAT = 20.8449;
+        const LON = 106.6881;
 
-  <!-- THỜI TIẾT HIỆN TẠI -->
-  <div class="wn" id="weatherNow">
-    <div class="loader" style="color:rgba(255,255,255,.7)">
-      <div class="spinner" style="border-color:rgba(255,255,255,.25);border-top-color:#fff"></div>
-      Đang tải dữ liệu thời tiết...
-    </div>
-  </div>
+        // Weather icon mapping
+        const weatherIcons = {
+            '01d': '☀️', '01n': '🌙',
+            '02d': '⛅', '02n': '☁️',
+            '03d': '☁️', '03n': '☁️',
+            '04d': '☁️', '04n': '☁️',
+            '09d': '🌧️', '09n': '🌧️',
+            '10d': '🌦️', '10n': '🌧️',
+            '11d': '⛈️', '11n': '⛈️',
+            '13d': '❄️', '13n': '❄️',
+            '50d': '🌫️', '50n': '🌫️'
+        };
 
-  <!-- 24H -->
-  <div class="card">
-    <div class="card-head">
-      <h3><i class="fa-regular fa-clock" style="color:var(--muted)"></i> Diễn biến 24 giờ tới</h3>
-      <span class="badge badge-blue">Open-Meteo</span>
-    </div>
-    <div class="card-body">
-      <div class="h-scroll" id="hourForecast">
-        <div class="loader"><div class="spinner"></div> Đang tải...</div>
-      </div>
-    </div>
-  </div>
+        function getWeatherIcon(code) {
+            return weatherIcons[code] || '🌤️';
+        }
 
-  <!-- 7 NGÀY -->
-  <div class="card">
-    <div class="card-head">
-      <h3><i class="fa-solid fa-calendar-days" style="color:var(--accent)"></i> 7 ngày tới</h3>
-    </div>
-    <div class="card-body" id="weekForecast">
-      <div class="loader"><div class="spinner"></div> Đang tải...</div>
-    </div>
-  </div>
+        function formatDate(timestamp) {
+            const date = new Date(timestamp * 1000);
+            const days = ['Chủ Nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
+            return days[date.getDay()] + ', ' + date.getDate() + '/' + (date.getMonth() + 1);
+        }
 
-  <!-- THỦY TRIỀU -->
-  <div class="card">
-    <div class="card-head">
-      <h3><i class="fa-solid fa-water" style="color:var(--accent)"></i> Biểu đồ thủy triều</h3>
-      <span class="badge badge-blue">Hải Phòng</span>
-    </div>
-    <div class="card-body">
-      <div class="tide-wrap"><canvas id="tideChart"></canvas></div>
-      <div class="tide-stats">
-        <div class="tb tb-b"><div class="tl">Cao nhất</div><div class="tv">3.91 m</div></div>
-        <div class="tb tb-b"><div class="tl">Thấp nhất</div><div class="tv">-1.06 m</div></div>
-        <div class="tb tb-o"><div class="tl">Bình minh</div><div class="tv" id="sunrise">–</div></div>
-        <div class="tb tb-p"><div class="tl">Hoàng hôn</div><div class="tv" id="sunset">–</div></div>
-      </div>
-    </div>
-  </div>
+        function formatTime(timestamp) {
+            const date = new Date(timestamp * 1000);
+            return date.getHours() + ':00';
+        }
 
-  <!-- GIỜ HOÀNG ĐẠO -->
-  <div class="card">
-    <div class="card-head">
-      <h3><i class="fa-solid fa-yin-yang" style="color:#f59e0b"></i> Giờ hoàng đạo &amp; hắc đạo</h3>
-    </div>
-    <div class="card-body" style="display:flex;flex-direction:column;gap:10px">
-      <div>
-        <div style="font-size:11px;font-weight:600;color:#065f46;margin-bottom:5px">✦ Giờ hoàng đạo (tốt)</div>
-        <div class="gd-block" id="goodHours">–</div>
-      </div>
-      <div>
-        <div style="font-size:11px;font-weight:600;color:#991b1b;margin-bottom:5px">✦ Giờ hắc đạo (xấu)</div>
-        <div class="gd-block" id="badHours">–</div>
-      </div>
-    </div>
-  </div>
+        function translateWeather(desc) {
+            const translations = {
+                'clear sky': 'Trời quang đãng',
+                'few clouds': 'Ít mây',
+                'scattered clouds': 'Mây rải rác',
+                'broken clouds': 'Nhiều mây',
+                'overcast clouds': 'U ám',
+                'shower rain': 'Mưa rào',
+                'rain': 'Mưa',
+                'light rain': 'Mưa nhẹ',
+                'moderate rain': 'Mưa vừa',
+                'heavy rain': 'Mưa to',
+                'thunderstorm': 'Dông bão',
+                'snow': 'Tuyết',
+                'mist': 'Sương mù',
+                'fog': 'Sương mù dày',
+                'haze': 'Sương mù nhẹ'
+            };
+            return translations[desc.toLowerCase()] || desc;
+        }
 
-  <!-- BẢN ĐỒ -->
-  <div class="card">
-    <div class="card-head">
-      <h3><i class="fa-solid fa-map" style="color:var(--accent)"></i> Bản đồ radar / gió</h3>
-      <span class="badge badge-blue">Windy</span>
-    </div>
-    <div class="map-box">
-      <iframe src="https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=default&metricTemp=default&metricWind=default&zoom=8&overlay=rain&product=ecmwf&level=surface&lat=20.857&lon=106.683" allowfullscreen loading="lazy"></iframe>
-    </div>
-    <div class="map-foot"><i class="fa-solid fa-circle-info" style="font-size:9px"></i> Bản đồ mưa & gió thực từ Windy (ECMWF)</div>
-  </div>
+        async function getWeatherData() {
+            try {
+                const [currentData, forecastData, airQualityData] = await Promise.all([
+                    fetch(`https://api.openweathermap.org/data/2.5/weather?q=${CITY},VN&appid=${OPENWEATHER_API_KEY}&units=metric&lang=vi`).then(r => r.json()),
+                    fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${CITY},VN&appid=${OPENWEATHER_API_KEY}&units=metric&lang=vi`).then(r => r.json()),
+                    fetch(`https://api.openweathermap.org/data/2.5/air_pollution?lat=${LAT}&lon=${LON}&appid=${OPENWEATHER_API_KEY}`).then(r => r.json())
+                ]);
 
-</div>
+                if (currentData.cod !== 200) {
+                    throw new Error('Không thể tải dữ liệu thời tiết');
+                }
 
-<script>
-/* ═══════════════════════════════════════════════════
-   ÂM LỊCH CHÍNH XÁC – thuật toán Hồ Ngọc Đức
-   Tính Julian Day Number → tra bảng tháng âm lịch
-═══════════════════════════════════════════════════ */
-function INT(d){return Math.floor(d);}
+                displayWeather(currentData, forecastData, airQualityData);
+                
+                document.getElementById('updateTime').innerHTML = 
+                    `Cập nhật lúc: ${new Date().toLocaleString('vi-VN')}`;
 
-function jdFromDate(dd,mm,yy){
-  var a=INT((14-mm)/12);
-  var y=yy+4800-a;
-  var m=mm+12*a-3;
-  var jd=dd+INT((153*m+2)/5)+365*y+INT(y/4)-INT(y/100)+INT(y/400)-32045;
-  if(jd<2299161){jd=dd+INT((153*m+2)/5)+365*y+INT(y/4)-32083;}
-  return jd;
-}
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('weatherContent').innerHTML = 
+                    `<div class="error">❌ Không thể tải dữ liệu thời tiết. Vui lòng thử lại sau.</div>`;
+            }
+        }
 
-function getNewMoonDay(k,timeZone){
-  var T=k/1236.85;
-  var T2=T*T;var T3=T2*T;var T4=T3*T;
-  var Jde=2415020.75933+29.53058868*k+0.0001178*T2-0.000000155*T3
-    +0.00033*Math.sin((166.56+132.87*T-0.009173*T2)*Math.PI/180);
-  var M=357.5291+29.1534273*k-0.0000014*T2-0.00000011*T3;
-  M=M*Math.PI/180;
-  var Mprime=134.9634+477198.8676*k+0.0087*T2+0.000014*T3;
-  Mprime=Mprime*Math.PI/180;
-  var F=93.2721+483202.0175*k-0.0036*T2-0.00000283*T3;
-  F=F*Math.PI/180;
-  var C1=(0.1734-0.000393*T)*Math.sin(M)+0.0021*Math.sin(2*M);
-  C1=C1-0.4068*Math.sin(Mprime)+0.0161*Math.sin(2*Mprime)-0.0004*Math.sin(3*Mprime);
-  C1=C1+0.0104*Math.sin(2*F)-0.0051*Math.sin(M+Mprime);
-  C1=C1-0.0074*Math.sin(M-Mprime)+0.0004*Math.sin(2*F+M);
-  C1=C1-0.0004*Math.sin(2*F-M)-0.0006*Math.sin(2*F+Mprime);
-  C1=C1+0.0010*Math.sin(2*F-Mprime)+0.0005*Math.sin(M+2*Mprime);
-  var deltaT;
-  if(T<-11){deltaT=-0.000278+0.000265*T+0.000262*T2;}
-  else{deltaT=-0.000278+0.000265*T+0.000262*T2;}
-  var JdNew=Jde+C1-deltaT;
-  return INT(JdNew+0.5+timeZone/24);
-}
+        function displayWeather(current, forecast, airQuality) {
+            const html = `
+                <div class="current-weather">
+                    <div class="current-main">
+                        <div class="current-icon">${getWeatherIcon(current.weather[0].icon)}</div>
+                        <div>
+                            <div class="current-temp">${Math.round(current.main.temp)}°C</div>
+                            <div class="current-desc">${translateWeather(current.weather[0].description)}</div>
+                        </div>
+                    </div>
+                    <div class="current-details">
+                        <div class="detail-item">
+                            <div class="detail-label">💧 Độ ẩm</div>
+                            <div class="detail-value">${current.main.humidity}%</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">🌡️ Cảm giác</div>
+                            <div class="detail-value">${Math.round(current.main.feels_like)}°C</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">💨 Gió</div>
+                            <div class="detail-value">${Math.round(current.wind.speed * 3.6)} km/h</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">🔽 Áp suất</div>
+                            <div class="detail-value">${current.main.pressure} hPa</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">👁️ Tầm nhìn</div>
+                            <div class="detail-value">${(current.visibility / 1000).toFixed(1)} km</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">☁️ Mây</div>
+                            <div class="detail-value">${current.clouds.all}%</div>
+                        </div>
+                    </div>
+                </div>
 
-function getSunLongitude(jdn,timeZone){
-  var T=(jdn-2451545.5-timeZone/24)/36525;
-  var T2=T*T;
-  var dr=Math.PI/180;
-  var M=357.5291+35999.0503*T-0.0001559*T2-0.00000048*T*T2;
-  var L0=280.46645+36000.76983*T+0.0003032*T2;
-  var DL=(1.9146-0.004817*T-0.000014*T2)*Math.sin(dr*M)
-    +(0.019993-0.000101*T)*Math.sin(dr*2*M)+0.00029*Math.sin(dr*3*M);
-  var L=L0+DL;
-  var L=L*dr;L=L-Math.PI*2*INT(L/(Math.PI*2));
-  return INT(L/(Math.PI/6));
-}
+                ${airQuality && airQuality.list ? `
+                <div class="air-quality">
+                    <h3 style="margin-bottom: 15px;">🌫️ Chất lượng không khí</h3>
+                    <div class="aqi-grid">
+                        <div class="aqi-item">
+                            <div class="aqi-value">${airQuality.list[0].main.aqi}</div>
+                            <div class="aqi-label">AQI</div>
+                        </div>
+                        <div class="aqi-item">
+                            <div class="aqi-value">${airQuality.list[0].components.pm2_5.toFixed(1)}</div>
+                            <div class="aqi-label">PM2.5</div>
+                        </div>
+                        <div class="aqi-item">
+                            <div class="aqi-value">${airQuality.list[0].components.pm10.toFixed(1)}</div>
+                            <div class="aqi-label">PM10</div>
+                        </div>
+                        <div class="aqi-item">
+                            <div class="aqi-value">${airQuality.list[0].components.o3.toFixed(1)}</div>
+                            <div class="aqi-label">O₃</div>
+                        </div>
+                        <div class="aqi-item">
+                            <div class="aqi-value">${airQuality.list[0].components.no2.toFixed(1)}</div>
+                            <div class="aqi-label">NO₂</div>
+                        </div>
+                        <div class="aqi-item">
+                            <div class="aqi-value">${airQuality.list[0].components.co.toFixed(1)}</div>
+                            <div class="aqi-label">CO</div>
+                        </div>
+                    </div>
+                </div>
+                ` : ''}
 
-function getLunarMonth11(yy,timeZone){
-  var off=jdFromDate(31,12,yy)-2415021;
-  var k=INT(off/29.530588853);
-  var nm=getNewMoonDay(k,timeZone);
-  var sunLong=getSunLongitude(nm,timeZone);
-  if(sunLong>=9){nm=getNewMoonDay(k-1,timeZone);}
-  return nm;
-}
+                <div class="forecast-section">
+                    <h2 class="section-title">⏰ Dự báo theo giờ</h2>
+                    <div class="hourly-forecast">
+                        ${forecast.list.slice(0, 8).map(item => `
+                            <div class="hourly-item">
+                                <div class="hourly-time">${formatTime(item.dt)}</div>
+                                <div class="hourly-icon">${getWeatherIcon(item.weather[0].icon)}</div>
+                                <div class="hourly-temp">${Math.round(item.main.temp)}°C</div>
+                                <div class="hourly-desc">${translateWeather(item.weather[0].description)}</div>
+                                <div style="font-size: 0.8em; color: #888; margin-top: 5px;">
+                                    💧 ${item.main.humidity}% | 💨 ${Math.round(item.wind.speed * 3.6)} km/h
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
 
-function getLeapMonthOffset(a11,timeZone){
-  var k=INT((a11-2415021.076998695)/29.530588853+0.5);
-  var last,i=1,arc=getSunLongitude(getNewMoonDay(k+i,timeZone),timeZone);
-  do{
-    last=arc;i++;
-    arc=getSunLongitude(getNewMoonDay(k+i,timeZone),timeZone);
-  }while(arc!==last&&i<14);
-  return i-1;
-}
+                <div class="forecast-section">
+                    <h2 class="section-title">📅 Dự báo 5 ngày tới</h2>
+                    <div class="daily-forecast">
+                        ${getDailyForecast(forecast.list).map(day => `
+                            <div class="daily-item">
+                                <div class="daily-date">${formatDate(day.dt)}</div>
+                                <div class="daily-icon">${getWeatherIcon(day.icon)}</div>
+                                <div class="daily-temp">${Math.round(day.temp)}°C</div>
+                                <div class="daily-temp-range">
+                                    ↑ ${Math.round(day.temp_max)}° ↓ ${Math.round(day.temp_min)}°
+                                </div>
+                                <div class="daily-desc">${translateWeather(day.description)}</div>
+                                <div style="font-size: 0.85em; color: #888; margin-top: 10px;">
+                                    💧 ${day.humidity}%<br>
+                                    💨 ${Math.round(day.wind_speed * 3.6)} km/h
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
 
-function solarToLunar(dd,mm,yy){
-  var timeZone=7;
-  var dayNumber=jdFromDate(dd,mm,yy);
-  var k=INT((dayNumber-2415021.076998695)/29.530588853);
-  var monthStart=getNewMoonDay(k+1,timeZone);
-  if(monthStart>dayNumber){monthStart=getNewMoonDay(k,timeZone);}
-  var a11=getLunarMonth11(yy,timeZone);
-  var b11=a11;
-  var lunarYear;
-  if(a11>=monthStart){
-    lunarYear=yy;a11=getLunarMonth11(yy-1,timeZone);
-  }else{
-    lunarYear=yy+1;b11=getLunarMonth11(yy+1,timeZone);
-  }
-  var lunarDay=dayNumber-monthStart+1;
-  var diff=INT((monthStart-a11)/29);
-  var lunarLeap=0;
-  var lunarMonth=diff+11;
-  if(b11-a11>365){
-    var leapMonthDiff=getLeapMonthOffset(a11,timeZone);
-    if(diff>=leapMonthDiff){
-      lunarMonth=diff+10;
-      if(diff===leapMonthDiff){lunarLeap=1;}
-    }
-  }
-  if(lunarMonth>12){lunarMonth=lunarMonth-12;}
-  if(lunarMonth>=11&&diff<4){lunarYear--;}
-  return{day:lunarDay,month:lunarMonth,year:lunarYear,leap:lunarLeap};
-}
+            document.getElementById('weatherContent').innerHTML = html;
+        }
 
-/* ═══════════════════════════════════════════════════
-   CAN CHI
-═══════════════════════════════════════════════════ */
-var CAN=['Giáp','Ất','Bính','Đinh','Mậu','Kỷ','Canh','Tân','Nhâm','Quý'];
-var CHI=['Tý','Sửu','Dần','Mão','Thìn','Tỵ','Ngọ','Mùi','Thân','Dậu','Tuất','Hợi'];
-var DAYS_VI=['Chủ Nhật','Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy'];
-var TIET_KHI={1:'Tiểu hàn · Đại hàn',2:'Lập xuân · Vũ thủy',3:'Kinh trập · Xuân phân',4:'Thanh minh · Cốc vũ',5:'Lập hạ · Tiểu mãn',6:'Mang chủng · Hạ chí',7:'Tiểu thử · Đại thử',8:'Lập thu · Xử thử',9:'Bạch lộ · Thu phân',10:'Hàn lộ · Sương giáng',11:'Lập đông · Tiểu tuyết',12:'Đại tuyết · Đông chí'};
+        function getDailyForecast(list) {
+            const dailyData = {};
+            
+            list.forEach(item => {
+                const date = new Date(item.dt * 1000).toDateString();
+                
+                if (!dailyData[date]) {
+                    dailyData[date] = {
+                        dt: item.dt,
+                        temps: [],
+                        humidity: [],
+                        wind_speed: [],
+                        icon: item.weather[0].icon,
+                        description: item.weather[0].description
+                    };
+                }
+                
+                dailyData[date].temps.push(item.main.temp);
+                dailyData[date].humidity.push(item.main.humidity);
+                dailyData[date].wind_speed.push(item.wind.speed);
+            });
 
-function getCanChi(yr){return CAN[(yr-4)%10]+' '+CHI[(yr-4)%12];}
-function pad2(n){return n<10?'0'+n:''+n;}
-function getCanChiNgay(jd){return CAN[(jd+9)%10]+' '+CHI[(jd+1)%12];}
-function getCanChiThang(lunarYear,lunarMonth){
-  var base=[2,4,6,8,0,2,4,6,8,0];
-  var canNamIdx=(lunarYear-4)%10;
-  var canIdx=(base[canNamIdx]+(lunarMonth-1))%10;
-  var chiIdx=(lunarMonth+1)%12;
-  return CAN[canIdx]+' '+CHI[chiIdx];
-}
+            return Object.values(dailyData).slice(0, 5).map(day => ({
+                dt: day.dt,
+                temp: day.temps.reduce((a, b) => a + b) / day.temps.length,
+                temp_max: Math.max(...day.temps),
+                temp_min: Math.min(...day.temps),
+                humidity: Math.round(day.humidity.reduce((a, b) => a + b) / day.humidity.length),
+                wind_speed: day.wind_speed.reduce((a, b) => a + b) / day.wind_speed.length,
+                icon: day.icon,
+                description: day.description
+            }));
+        }
 
-/* ═══════════════════════════════════════════════════
-   GIỜ HOÀNG ĐẠO theo Can ngày (bảng chuẩn)
-═══════════════════════════════════════════════════ */
-var HOANG_DAO_MAP=[
-  // Giáp/Kỷ
-  ['Tý (23-1h)','Sửu (1-3h)','Thìn (7-9h)','Tỵ (9-11h)','Mùi (13-15h)','Tuất (19-21h)'],
-  // Ất/Canh
-  ['Sửu (1-3h)','Dần (3-5h)','Tỵ (9-11h)','Ngọ (11-13h)','Thân (15-17h)','Hợi (21-23h)'],
-  // Bính/Tân
-  ['Dần (3-5h)','Mão (5-7h)','Ngọ (11-13h)','Mùi (13-15h)','Dậu (17-19h)','Tý (23-1h)'],
-  // Đinh/Nhâm
-  ['Mão (5-7h)','Thìn (7-9h)','Mùi (13-15h)','Thân (15-17h)','Tuất (19-21h)','Sửu (1-3h)'],
-  // Mậu/Quý
-  ['Thìn (7-9h)','Tỵ (9-11h)','Thân (15-17h)','Dậu (17-19h)','Hợi (21-23h)','Dần (3-5h)'],
-];
-var HAC_DAO_MAP=[
-  ['Dần (3-5h)','Mão (5-7h)','Ngọ (11-13h)','Thân (15-17h)','Dậu (17-19h)','Hợi (21-23h)'],
-  ['Mão (5-7h)','Thìn (7-9h)','Ngọ (11-13h)','Mùi (13-15h)','Tuất (19-21h)','Tý (23-1h)'],
-  ['Tý (23-1h)','Sửu (1-3h)','Thìn (7-9h)','Tỵ (9-11h)','Mùi (13-15h)','Tuất (19-21h)'],
-  ['Tý (23-1h)','Dần (3-5h)','Mão (5-7h)','Tỵ (9-11h)','Ngọ (11-13h)','Hợi (21-23h)'],
-  ['Sửu (1-3h)','Mão (5-7h)','Ngọ (11-13h)','Mùi (13-15h)','Dậu (17-19h)','Tý (23-1h)'],
-];
-
-function renderCalendar(){
-  var now=new Date();
-  var y=now.getFullYear(),mo=now.getMonth()+1,d=now.getDate(),dow=now.getDay();
-  document.getElementById('headerDate').textContent=DAYS_VI[dow]+', '+pad2(d)+'/'+pad2(mo)+'/'+y+' – Thời tiết Hải Phòng';
-  document.getElementById('calDow').textContent=DAYS_VI[dow]+' '+pad2(d)+'/'+pad2(mo)+'/'+y;
-  document.getElementById('sDay').textContent=d;
-  document.getElementById('sMonthYear').textContent='Tháng '+mo+' năm '+y;
-  document.getElementById('sFull').textContent='Ngày: '+pad2(d)+'-'+pad2(mo)+'-'+y;
-
-  var lunar=solarToLunar(d,mo,y);
-  document.getElementById('lDay').textContent=lunar.day;
-  var lmStr='Tháng '+(lunar.leap?'nhuận ':'')+lunar.month+' năm '+lunar.year;
-  document.getElementById('lMonthYear').textContent=lmStr;
-  document.getElementById('lCan').textContent='('+getCanChi(lunar.year)+')';
-
-  var jd=jdFromDate(d,mo,y);
-  var canChiNgay=getCanChiNgay(jd);
-  var canChiThang=getCanChiThang(lunar.year,lunar.month);
-  document.getElementById('calDetail').innerHTML=
-    '<b>Can chi:</b> Ngày '+canChiNgay+', Tháng '+canChiThang+
-    '&nbsp;&nbsp;|&nbsp;&nbsp;<b>Tiết khí:</b> '+(TIET_KHI[mo]||'–');
-
-  var canNgayIdx=(jd+9)%10;
-  var mapIdx=Math.floor(canNgayIdx/2)%5;
-  document.getElementById('goodHours').textContent=HOANG_DAO_MAP[mapIdx].join(' · ');
-  document.getElementById('badHours').textContent=HAC_DAO_MAP[mapIdx].join(' · ');
-  document.getElementById('updateTime').textContent='Cập nhật '+pad2(now.getHours())+':'+pad2(now.getMinutes());
-}
-
-/* ═══════════════════════════════════════════════════
-   WEATHER HELPERS
-═══════════════════════════════════════════════════ */
-function wmoIcon(c,day){
-  var d=day!==false;
-  if(c===0)return d?'☀️':'🌙';
-  if(c<=2)return d?'🌤️':'☁️';
-  if(c===3)return '☁️';
-  if(c<=49)return '🌫️';
-  if(c<=59)return '🌦️';
-  if(c<=69)return '🌧️';
-  if(c<=79)return '❄️';
-  if(c<=82)return '🌧️';
-  if(c<=84)return '🌨️';
-  if(c<=99)return '⛈️';
-  return '🌡️';
-}
-function wmoDesc(c){
-  if(c===0)return 'Trời quang';
-  if(c<=2)return 'Có mây';
-  if(c===3)return 'Nhiều mây';
-  if(c<=49)return 'Sương mù';
-  if(c<=59)return 'Mưa phùn';
-  if(c<=69)return 'Mưa';
-  if(c<=79)return 'Tuyết';
-  if(c<=82)return 'Mưa rào';
-  if(c<=84)return 'Mưa tuyết';
-  if(c<=99)return 'Dông bão';
-  return 'Không rõ';
-}
-function uvLabel(v){
-  if(v<3)return 'Thấp';if(v<6)return 'Trung bình';if(v<8)return 'Cao';if(v<11)return 'Rất cao';return 'Cực cao';
-}
-
-/* ═══════════════════════════════════════════════════
-   API OPEN-METEO
-═══════════════════════════════════════════════════ */
-var LAT=20.8529,LON=106.6833;
-async function fetchWeather(){
-  var url='https://api.open-meteo.com/v1/forecast?latitude='+LAT+'&longitude='+LON
-    +'&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,'
-    +'weather_code,uv_index,visibility,surface_pressure,dew_point_2m,is_day'
-    +'&hourly=temperature_2m,precipitation_probability,weather_code,wind_speed_10m'
-    +'&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset'
-    +'&timezone=Asia%2FHo_Chi_Minh&forecast_days=7';
-  var res=await fetch(url);
-  if(!res.ok)throw new Error('HTTP '+res.status);
-  return res.json();
-}
-
-function renderWeatherNow(c){
-  var temp=Math.round(c.temperature_2m);
-  var feel=Math.round(c.apparent_temperature);
-  var hum=c.relative_humidity_2m;
-  var wind=Math.round(c.wind_speed_10m);
-  var uv=c.uv_index.toFixed(1);
-  var vis=c.visibility>=1000?(c.visibility/1000).toFixed(0)+' km':(c.visibility+' m');
-  var pres=Math.round(c.surface_pressure);
-  var dew=Math.round(c.dew_point_2m);
-  document.getElementById('weatherNow').innerHTML=
-    '<div class="wn-main">'
-    +'<div class="wn-left">'
-    +'<div><div style="font-size:34px;margin-bottom:-4px">'+wmoIcon(c.weather_code,c.is_day)+'</div>'
-    +'<div class="wn-temp">'+temp+'°</div></div>'
-    +'<div><div class="wn-desc">'+wmoDesc(c.weather_code)+'</div>'
-    +'<div class="wn-feel">Cảm giác như '+feel+'°</div>'
-    +'<div class="wn-chips"><span>💧 '+hum+'%</span><span>💨 '+wind+' km/h</span></div></div>'
-    +'</div>'
-    +'<div class="wn-stats">'
-    +'<div class="ws"><div class="ws-lbl">Chỉ số UV</div><div class="ws-val">'+uv+'</div><div class="ws-sub">'+uvLabel(c.uv_index)+'</div></div>'
-    +'<div class="ws"><div class="ws-lbl">Tầm nhìn</div><div class="ws-val">'+vis+'</div></div>'
-    +'<div class="ws"><div class="ws-lbl">Áp suất</div><div class="ws-val">'+pres+'</div><div class="ws-sub">hPa</div></div>'
-    +'<div class="ws"><div class="ws-lbl">Điểm sương</div><div class="ws-val">'+dew+'°</div></div>'
-    +'</div></div>';
-}
-
-function renderHourly(hourly){
-  var now=new Date();
-  var curH=now.getHours();
-  var todayStr=now.toISOString().slice(0,10);
-  var times=hourly.time;
-  var startIdx=0;
-  for(var i=0;i<times.length;i++){
-    if(times[i].startsWith(todayStr)&&parseInt(times[i].slice(11,13))===curH){startIdx=i;break;}
-  }
-  var cont=document.getElementById('hourForecast');
-  cont.innerHTML='';
-  for(var i=0;i<24&&startIdx+i<times.length;i++){
-    var idx=startIdx+i;
-    var h=parseInt(times[idx].slice(11,13));
-    var isNow=i===0;
-    var div=document.createElement('div');
-    div.className='hc'+(isNow?' now':'');
-    div.innerHTML='<div class="hc-t">'+(isNow?'Bây giờ':pad2(h)+':00')+'</div>'
-      +'<div class="hc-i">'+wmoIcon(hourly.weather_code[idx],h>=6&&h<=18)+'</div>'
-      +'<div class="hc-tmp">'+Math.round(hourly.temperature_2m[idx])+'°</div>'
-      +'<div class="hc-r">💧 '+(hourly.precipitation_probability[idx]||0)+'%</div>'
-      +'<div class="hc-w">💨 '+Math.round(hourly.wind_speed_10m[idx])+' km/h</div>'
-      +'<div class="hc-d">'+wmoDesc(hourly.weather_code[idx])+'</div>';
-    cont.appendChild(div);
-  }
-  setTimeout(function(){
-    var nc=cont.querySelector('.now');
-    if(nc)nc.scrollIntoView({inline:'center',behavior:'smooth'});
-  },300);
-}
-
-function renderWeekly(daily){
-  var cont=document.getElementById('weekForecast');
-  cont.innerHTML='';
-  daily.time.forEach(function(dateStr,i){
-    var dt=new Date(dateStr+'T12:00:00+07:00');
-    var isToday=i===0,isTomorrow=i===1;
-    var label=isToday?'Hôm nay':isTomorrow?'Ngày mai':DAYS_VI[dt.getDay()];
-    var row=document.createElement('div');
-    row.className='day-row';
-    row.innerHTML='<div class="dr-day"><div class="dr-dn'+(isToday?' today':'')+'">'+label+'</div>'
-      +'<div class="dr-dd">'+pad2(dt.getDate())+'/'+pad2(dt.getMonth()+1)+'</div></div>'
-      +'<div class="dr-w"><span class="dr-i">'+wmoIcon(daily.weather_code[i],true)+'</span> '+wmoDesc(daily.weather_code[i])+'</div>'
-      +'<div class="dr-tmp">'+Math.round(daily.temperature_2m_max[i])+'°<span class="dr-lo">'+Math.round(daily.temperature_2m_min[i])+'°</span></div>';
-    cont.appendChild(row);
-  });
-}
-
-function renderSunrise(daily){
-  if(daily.sunrise&&daily.sunrise[0])document.getElementById('sunrise').textContent=daily.sunrise[0].slice(11,16);
-  if(daily.sunset&&daily.sunset[0])document.getElementById('sunset').textContent=daily.sunset[0].slice(11,16);
-}
-
-function renderTide(){
-  var ctx=document.getElementById('tideChart').getContext('2d');
-  new Chart(ctx,{
-    type:'line',
-    data:{
-      labels:['09:00','12:00','15:00','18:00','21:00','00:00','03:00','06:00','09:00'],
-      datasets:[{data:[3.5,3.2,0.5,-1.0,1.2,3.8,2.5,1.0,2.8],
-        borderColor:'#0ea5e9',backgroundColor:'rgba(14,165,233,.1)',
-        fill:true,tension:.4,borderWidth:2.5,
-        pointRadius:4,pointBackgroundColor:'#fff',pointBorderColor:'#0ea5e9',pointBorderWidth:2}]
-    },
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:function(v){return v.parsed.y.toFixed(2)+' m';}}}},
-      scales:{
-        y:{min:-2,max:4.5,ticks:{stepSize:1,color:'#94a3b8',font:{size:10}},grid:{color:'rgba(0,0,0,.05)'}},
-        x:{ticks:{color:'#94a3b8',font:{size:10}},grid:{display:false}}
-      }
-    }
-  });
-}
-
-function renderFallback(){
-  var cont=document.getElementById('hourForecast');
-  cont.innerHTML='';
-  [['Bây giờ','☁️',27,35,13,'Nhiều mây'],['10:00','🌦️',28,40,14,'Mưa nhẹ'],['12:00','⛈️',29,65,20,'Dông bão'],['15:00','🌧️',27,50,16,'Mưa vừa'],['18:00','⛅',26,15,11,'Có mây'],['21:00','🌙',25,5,9,'Quang mây']].forEach(function(it,i){
-    var div=document.createElement('div');div.className='hc'+(i===0?' now':'');
-    div.innerHTML='<div class="hc-t">'+it[0]+'</div><div class="hc-i">'+it[1]+'</div><div class="hc-tmp">'+it[2]+'°</div><div class="hc-r">💧 '+it[3]+'%</div><div class="hc-w">💨 '+it[4]+' km/h</div><div class="hc-d">'+it[5]+'</div>';
-    cont.appendChild(div);
-  });
-  var wf=document.getElementById('weekForecast');wf.innerHTML='';
-  var now=new Date();
-  [['⛈️','Dông bão',29,24],['⛅','Nhiều mây',32,24],['⛈️','Dông bão',30,24],['⛈️','Dông bão',30,24],['⛅','Nhiều mây',30,24],['🌤️','Có nắng',31,25],['⛅','Mây rải rác',32,25]].forEach(function(a,i){
-    var dt=new Date(now);dt.setDate(dt.getDate()+i);
-    var row=document.createElement('div');row.className='day-row';
-    row.innerHTML='<div class="dr-day"><div class="dr-dn'+(i===0?' today':'')+'">'+( i===0?'Hôm nay':i===1?'Ngày mai':DAYS_VI[dt.getDay()])+'</div><div class="dr-dd">'+pad2(dt.getDate())+'/'+pad2(dt.getMonth()+1)+'</div></div><div class="dr-w"><span class="dr-i">'+a[0]+'</span> '+a[1]+'</div><div class="dr-tmp">'+a[2]+'°<span class="dr-lo">'+a[3]+'°</span></div>';
-    wf.appendChild(row);
-  });
-}
-
-async function main(){
-  renderCalendar();
-  renderTide();
-  try{
-    var data=await fetchWeather();
-    renderWeatherNow(data.current);
-    renderHourly(data.hourly);
-    renderWeekly(data.daily);
-    renderSunrise(data.daily);
-  }catch(e){
-    console.error(e);
-    document.getElementById('weatherNow').innerHTML='<div style="padding:14px"><div class="err"><i class="fa-solid fa-triangle-exclamation"></i> Không thể tải dữ liệu. Đang dùng dữ liệu dự phòng.</div></div>';
-    renderFallback();
-  }
-  sendHeight();
-}
-
-main();
-
-/* ═══════════════════════════════════════════════════
-   POSTMESSAGE – format { height: N }
-   Khớp với code WordPress của bạn:
-     if (event.data && event.data.height) { ... }
-═══════════════════════════════════════════════════ */
-function sendHeight(){
-  var h=Math.max(
-    document.body.scrollHeight,
-    document.body.offsetHeight,
-    document.documentElement.scrollHeight,
-    document.documentElement.offsetHeight
-  );
-  try{parent.postMessage({height:h},'*');}catch(e){}
-  try{top.postMessage({height:h},'*');}catch(e){}
-}
-
-window.addEventListener('load',function(){
-  sendHeight();
-  setTimeout(sendHeight,600);
-  setTimeout(sendHeight,1500);
-  setTimeout(sendHeight,3000);
-});
-window.addEventListener('resize',sendHeight);
-if(window.MutationObserver){
-  var obs=new MutationObserver(function(){setTimeout(sendHeight,100);});
-  obs.observe(document.body,{childList:true,subtree:true});
-}
-var pc=0,pi=setInterval(function(){sendHeight();if(++pc>=8)clearInterval(pi);},3000);
-</script>
+        getWeatherData();
+        setInterval(getWeatherData, 600000); // Cập nhật mỗi 10 phút
+    </script>
 </body>
 </html>
