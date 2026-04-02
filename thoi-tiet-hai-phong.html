@@ -511,5 +511,22 @@
         getWeatherData();
         setInterval(getWeatherData, 600000); // Cập nhật mỗi 10 phút
     </script>
+    <script>
+function sendHeight(){
+    const height = document.documentElement.scrollHeight;
+    parent.postMessage({
+        type: "weatherHeightHaiAn",
+        height: height
+    }, "*");
+}
+
+// gọi nhiều lần để tránh lỗi API load chậm
+window.addEventListener("load", sendHeight);
+window.addEventListener("resize", sendHeight);
+
+setTimeout(sendHeight, 500);
+setTimeout(sendHeight, 1500);
+setTimeout(sendHeight, 3000);
+</script>
 </body>
 </html>
