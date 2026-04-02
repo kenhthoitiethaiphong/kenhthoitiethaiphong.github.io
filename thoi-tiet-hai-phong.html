@@ -4,199 +4,129 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Thời Tiết Hải Phòng – thoitiethaiphong.com</title>
-<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
-/* ── RESET & BASE ─────────────────────────────────── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#f0f4f8;
-  --surface:#ffffff;
-  --surface2:#f8fafc;
-  --border:#e2e8f0;
-  --text:#1e293b;
-  --muted:#64748b;
-  --faint:#94a3b8;
-  --accent:#0ea5e9;
-  --accent-dark:#0369a1;
-  --green:#10b981;
-  --green-bg:#ecfdf5;
-  --green-border:#a7f3d0;
-  --orange:#f97316;
-  --orange-bg:#fff7ed;
-  --orange-border:#fed7aa;
-  --purple:#8b5cf6;
-  --purple-bg:#f5f3ff;
-  --purple-border:#ddd6fe;
-  --red:#ef4444;
-  --shadow:0 1px 4px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.06);
-  --r:14px;
-  --font:'Be Vietnam Pro',sans-serif;
+  --bg:#f0f4f8;--surface:#fff;--surface2:#f8fafc;--border:#e2e8f0;
+  --text:#1e293b;--muted:#64748b;--faint:#94a3b8;
+  --accent:#0ea5e9;--accent-dark:#0369a1;
+  --green:#10b981;--orange:#f97316;--red:#ef4444;
+  --shadow:0 1px 3px rgba(0,0,0,.06),0 4px 12px rgba(0,0,0,.06);--r:14px;
 }
-body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;min-height:100vh}
-
-/* ── LAYOUT ───────────────────────────────────────── */
-.wrap{max-width:960px;margin:0 auto;padding:16px}
-.grid-main{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:16px}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.col{display:flex;flex-direction:column;gap:16px}
-
-/* ── CARD ─────────────────────────────────────────── */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
-.card-body{padding:18px}
-.card-header{padding:11px 18px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)}
-.card-header h3{font-size:13px;font-weight:600;display:flex;align-items:center;gap:7px}
-
-/* ── BADGE ────────────────────────────────────────── */
-.badge{display:inline-flex;align-items:center;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:3px 9px;border-radius:20px;border:1px solid}
+html{overflow-x:hidden}
+body{font-family:'Be Vietnam Pro',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;width:100%;overflow-x:hidden}
+.wrap{width:100%;max-width:100%;padding:12px;display:flex;flex-direction:column;gap:14px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;width:100%}
+.card-head{padding:10px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)}
+.card-head h3{font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;color:var(--text)}
+.card-body{padding:16px}
+.badge{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:2px 8px;border-radius:20px;border:1px solid}
 .badge-blue{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe}
-.badge-green{background:var(--green-bg);color:#065f46;border-color:var(--green-border)}
-.badge-orange{background:var(--orange-bg);color:#9a3412;border-color:var(--orange-border)}
-.badge-red{background:#fef2f2;color:#991b1b;border-color:#fecaca}
-
-/* ── TOP HEADER ───────────────────────────────────── */
-.site-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;flex-wrap:wrap;gap:8px}
-.site-title{font-size:16px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:6px}
-.site-title .pin{color:var(--red);font-size:14px}
-.site-subtitle{font-size:11px;color:var(--muted);margin-top:3px}
-.update-badge{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:5px 10px}
-.pulse{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.85)}}
-
-/* ── CALENDAR CARD ────────────────────────────────── */
-.cal-header{background:#065f46;color:#fff;padding:10px 18px;display:flex;justify-content:space-between;align-items:center}
-.cal-header span{font-size:12px;font-weight:500}
-.cal-header .cal-dow{font-size:11px;opacity:.75}
-.cal-body{display:grid;grid-template-columns:1fr 1fr;gap:0}
-.cal-solar{padding:16px 18px;border-right:1px solid var(--border)}
-.cal-lunar{padding:16px 18px;background:#f0fdf4}
-.cal-label{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
-.cal-label.solar{color:var(--orange)}
-.cal-label.lunar{color:#065f46}
-.cal-num{font-size:52px;font-weight:800;line-height:1;margin-bottom:2px}
-.cal-num.solar{color:var(--orange)}
-.cal-num.lunar{color:#16a34a}
-.cal-sub{font-size:12px;font-weight:600}
-.cal-sub.solar{color:var(--text)}
-.cal-sub.lunar{color:#15803d}
-.cal-mini{font-size:11px;color:var(--muted);margin-top:2px}
-.cal-mini.lunar{color:#16a34a}
-.cal-detail{padding:14px 18px;border-top:1px solid var(--border);background:var(--surface2);font-size:11px;line-height:1.9;color:var(--muted)}
+/* HEADER */
+.site-header{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px}
+.site-title{font-size:15px;font-weight:700;display:flex;align-items:center;gap:6px}
+.site-title .pin{color:var(--red)}
+.site-date{font-size:11px;color:var(--muted);margin-top:3px}
+.update-badge{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:4px 10px;white-space:nowrap}
+.pulse{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
+/* CALENDAR */
+.cal-top{background:#065f46;color:#fff;padding:10px 16px;display:flex;justify-content:space-between;align-items:center}
+.cal-top span{font-size:12px;font-weight:500}
+.cal-top small{font-size:11px;opacity:.7}
+.cal-cols{display:grid;grid-template-columns:1fr 1fr}
+.cal-solar{padding:14px 16px;border-right:1px solid var(--border)}
+.cal-lunar{padding:14px 16px;background:#f0fdf4}
+.cal-lbl{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px}
+.cal-lbl.s{color:var(--orange)}.cal-lbl.l{color:#065f46}
+.cal-big{font-size:50px;font-weight:800;line-height:1}
+.cal-big.s{color:var(--orange)}.cal-big.l{color:#16a34a}
+.cal-name{font-size:12px;font-weight:600;margin-top:2px}
+.cal-name.s{color:var(--text)}.cal-name.l{color:#15803d}
+.cal-mini{font-size:10px;margin-top:2px}
+.cal-mini.s{color:var(--muted)}.cal-mini.l{color:#16a34a}
+.cal-detail{padding:11px 16px;border-top:1px solid var(--border);background:var(--surface2);font-size:11px;line-height:2;color:var(--muted)}
 .cal-detail b{color:var(--text)}
-
-/* ── WEATHER NOW ──────────────────────────────────── */
-.weather-now{background:linear-gradient(135deg,#334155 0%,#475569 60%,#64748b 100%);color:#fff;border-radius:var(--r);padding:20px;box-shadow:var(--shadow)}
-.wn-top{display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap}
-.wn-temp-block{display:flex;align-items:flex-start;gap:10px;flex:1;min-width:160px}
-.wn-temp{font-size:72px;font-weight:800;line-height:1;letter-spacing:-3px}
-.wn-info{margin-top:10px}
-.wn-desc{font-size:18px;font-weight:600}
+/* WEATHER NOW */
+.wn{background:linear-gradient(135deg,#334155,#475569 60%,#64748b);color:#fff;border-radius:var(--r);padding:18px;box-shadow:var(--shadow)}
+.wn-main{display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap}
+.wn-left{display:flex;align-items:flex-start;gap:10px;flex:1;min-width:160px}
+.wn-temp{font-size:68px;font-weight:800;line-height:1;letter-spacing:-3px}
+.wn-desc{font-size:17px;font-weight:600;margin-top:8px}
 .wn-feel{font-size:12px;opacity:.75;margin-top:2px}
-.wn-chips{display:flex;gap:14px;margin-top:14px;font-size:12px;opacity:.85;flex-wrap:wrap}
-.wn-chips span{display:flex;align-items:center;gap:5px}
+.wn-chips{display:flex;gap:12px;margin-top:12px;font-size:12px;opacity:.85;flex-wrap:wrap}
 .wn-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;flex:1;min-width:200px}
-.ws-box{background:rgba(255,255,255,.1);backdrop-filter:blur(4px);border-radius:10px;padding:11px;border:1px solid rgba(255,255,255,.08)}
-.ws-label{font-size:9px;text-transform:uppercase;letter-spacing:.08em;opacity:.65;margin-bottom:3px}
-.ws-val{font-size:18px;font-weight:700}
-.ws-sub{font-size:10px;opacity:.6;margin-top:2px}
-
-/* ── LOADING / ERROR ──────────────────────────────── */
+.ws{background:rgba(255,255,255,.1);border-radius:10px;padding:10px;border:1px solid rgba(255,255,255,.08)}
+.ws-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.07em;opacity:.6;margin-bottom:3px}
+.ws-val{font-size:17px;font-weight:700}
+.ws-sub{font-size:10px;opacity:.55;margin-top:1px}
+/* LOADER */
 .loader{display:flex;align-items:center;justify-content:center;gap:8px;padding:20px;color:var(--muted);font-size:12px}
-.spinner{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+.spinner{width:15px;height:15px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
 @keyframes spin{to{transform:rotate(360deg)}}
-.error-msg{padding:12px 16px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;color:#991b1b;font-size:12px;display:flex;align-items:center;gap:8px}
-
-/* ── 24H FORECAST ─────────────────────────────────── */
-.hours-scroll{display:flex;overflow-x:auto;gap:7px;padding-bottom:4px;scroll-snap-type:x mandatory}
-.hours-scroll::-webkit-scrollbar{height:3px}
-.hours-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
-.hour-card{min-width:76px;flex-shrink:0;background:var(--surface2);border:1px solid var(--border);border-radius:11px;padding:10px 7px;text-align:center;scroll-snap-align:start;transition:border-color .2s}
-.hour-card.active{background:#eff6ff;border-color:#bfdbfe}
-.hour-card:hover{border-color:var(--accent)}
-.hc-time{font-size:10px;color:var(--muted);margin-bottom:5px;font-weight:500}
-.hc-icon{font-size:21px;margin:2px 0}
-.hc-temp{font-size:15px;font-weight:700;margin:3px 0;color:var(--text)}
-.hc-rain{font-size:10px;color:#1d4ed8;font-weight:600;margin-top:3px}
-.hc-wind{font-size:10px;color:var(--muted);margin-top:2px}
-.hc-desc{font-size:9px;color:var(--muted);margin-top:2px;line-height:1.3}
-
-/* ── TIDE CHART ───────────────────────────────────── */
-.tide-chart-wrap{position:relative;height:190px}
-.tide-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
-.ts-box{border-radius:10px;padding:10px;text-align:center;border:1px solid}
-.ts-box .ts-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px}
-.ts-box .ts-val{font-size:14px;font-weight:700;color:var(--text)}
-.ts-blue{background:#eff6ff;border-color:#bfdbfe}.ts-blue .ts-label{color:#1d4ed8}
-.ts-orange{background:var(--orange-bg);border-color:var(--orange-border)}.ts-orange .ts-label{color:#c2410c}
-.ts-purple{background:var(--purple-bg);border-color:var(--purple-border)}.ts-purple .ts-label{color:#7c3aed}
-
-/* ── 7 DAYS ───────────────────────────────────────── */
-.day-row{display:flex;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)}
+.err{padding:12px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;color:#991b1b;font-size:12px;display:flex;align-items:center;gap:7px}
+/* 24H */
+.h-scroll{display:flex;overflow-x:auto;gap:6px;padding-bottom:4px;scroll-snap-type:x mandatory}
+.h-scroll::-webkit-scrollbar{height:3px}
+.h-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+.hc{min-width:74px;flex-shrink:0;background:var(--surface2);border:1px solid var(--border);border-radius:11px;padding:9px 6px;text-align:center;scroll-snap-align:start}
+.hc.now{background:#eff6ff;border-color:#bfdbfe}
+.hc-t{font-size:10px;color:var(--muted);font-weight:500;margin-bottom:4px}
+.hc-i{font-size:20px;margin:2px 0}
+.hc-tmp{font-size:15px;font-weight:700;color:var(--text);margin:3px 0}
+.hc-r{font-size:10px;color:#1d4ed8;font-weight:600;margin-top:2px}
+.hc-w{font-size:10px;color:var(--muted);margin-top:1px}
+.hc-d{font-size:9px;color:var(--muted);margin-top:2px;line-height:1.3}
+/* 7 NGÀY */
+.day-row{display:flex;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)}
 .day-row:last-child{border-bottom:none}
-.dr-day{width:78px;flex-shrink:0}
-.dr-day-name{font-size:12px;font-weight:600;color:var(--text)}
-.dr-day-name.today{color:var(--accent-dark)}
-.dr-date{font-size:10px;color:var(--muted)}
-.dr-weather{flex:1;display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)}
-.dr-icon{font-size:18px}
-.dr-temp{font-size:13px;font-weight:700;color:var(--text);white-space:nowrap;text-align:right}
-.dr-temp-lo{font-weight:400;color:var(--faint);font-size:12px;margin-left:4px}
-
-/* ── HOURS / GIỜ ──────────────────────────────────── */
-.giờ-block{background:var(--surface2);border-radius:10px;padding:11px 14px;font-size:11px;line-height:1.9;color:var(--muted)}
-.giờ-block b{color:var(--text)}
-
-/* ── MAP ──────────────────────────────────────────── */
-.map-wrap{border-radius:var(--r);overflow:hidden;height:400px;border:1px solid var(--border)}
-.map-wrap iframe{width:100%;height:100%;display:block;border:none}
-
-/* ── AQI BAR ──────────────────────────────────────── */
-.aqi-row{display:flex;align-items:center;gap:12px;margin-top:10px}
-.aqi-bar{flex:1;height:7px;border-radius:4px;background:linear-gradient(to right,#22c55e,#facc15,#f97316,#ef4444,#7c3aed,#881337);position:relative}
-.aqi-pointer{position:absolute;top:-3px;width:13px;height:13px;border-radius:50%;background:#fff;border:2px solid var(--text);transform:translateX(-50%);transition:left .6s ease}
-
-/* ── SECTION TITLE ────────────────────────────────── */
-.sec-title{font-size:13px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:7px;margin-bottom:14px}
-.sec-title i{font-size:13px}
-
-/* ── WINDY ATTRIBUTION ────────────────────────────── */
-.map-footer{font-size:10px;color:var(--muted);padding:6px 10px;display:flex;align-items:center;gap:4px}
-
-/* ── MOBILE RESPONSIVE ───────────────────────────── */
-@media(max-width:700px){
-  .grid-main{grid-template-columns:1fr}
-  .grid4{grid-template-columns:1fr 1fr}
-  .wn-stats{grid-template-columns:1fr 1fr}
-  .cal-body{grid-template-columns:1fr}
+.dr-day{width:84px;flex-shrink:0}
+.dr-dn{font-size:12px;font-weight:600;color:var(--text)}
+.dr-dn.today{color:var(--accent-dark)}
+.dr-dd{font-size:10px;color:var(--muted)}
+.dr-w{flex:1;display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)}
+.dr-i{font-size:17px}
+.dr-tmp{font-size:13px;font-weight:700;color:var(--text);text-align:right;white-space:nowrap}
+.dr-lo{font-weight:400;color:var(--faint);font-size:12px;margin-left:3px}
+/* TIDE */
+.tide-wrap{position:relative;height:180px}
+.tide-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.tb{border-radius:10px;padding:9px;text-align:center;border:1px solid}
+.tb .tl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
+.tb .tv{font-size:14px;font-weight:700;color:var(--text)}
+.tb-b{background:#eff6ff;border-color:#bfdbfe}.tb-b .tl{color:#1d4ed8}
+.tb-o{background:#fff7ed;border-color:#fed7aa}.tb-o .tl{color:#c2410c}
+.tb-p{background:#f5f3ff;border-color:#ddd6fe}.tb-p .tl{color:#7c3aed}
+/* GIỜ */
+.gd-block{background:var(--surface2);border-radius:10px;padding:10px 13px;font-size:11px;line-height:1.9;color:var(--muted)}
+/* MAP */
+.map-box{height:360px;width:100%}
+.map-box iframe{width:100%;height:100%;border:none;display:block}
+.map-foot{font-size:10px;color:var(--muted);padding:6px 10px;display:flex;align-items:center;gap:4px}
+@media(max-width:480px){
+  .cal-cols{grid-template-columns:1fr}
   .cal-solar{border-right:none;border-bottom:1px solid var(--border)}
   .tide-stats{grid-template-columns:1fr 1fr}
-  .wrap{padding:10px}
-  .wn-temp{font-size:56px}
-}
-@media(max-width:420px){
-  .grid2{grid-template-columns:1fr}
-  .grid4{grid-template-columns:1fr 1fr}
-  .site-header{flex-direction:column}
-  .wn-top{flex-direction:column}
-  .wn-stats{width:100%}
+  .wn-stats{grid-template-columns:1fr 1fr;width:100%}
+  .wn-main{flex-direction:column}
+  .wn-temp{font-size:54px}
 }
 </style>
 </head>
 <body>
-
 <div class="wrap">
 
-  <!-- HEADER -->
   <div class="site-header">
     <div>
       <div class="site-title">
         <i class="fa-solid fa-location-dot pin"></i>
         Hải Phòng (Trung tâm)
-        <span style="font-weight:400;color:var(--muted);font-size:13px;">· Thời tiết hôm nay</span>
+        <span style="font-weight:400;color:var(--muted);font-size:13px">· Thời tiết hôm nay</span>
       </div>
-      <div class="site-subtitle" id="headerDate">Đang tải ngày tháng...</div>
+      <div class="site-date" id="headerDate">Đang tải...</div>
     </div>
     <div class="update-badge">
       <div class="pulse"></div>
@@ -204,377 +134,423 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
     </div>
   </div>
 
-  <div class="grid-main">
-    <!-- CỘT TRÁI -->
-    <div class="col">
-
-      <!-- LỊCH -->
-      <div class="card">
-        <div class="cal-header">
-          <span><i class="fa-solid fa-calendar-check" style="margin-right:6px"></i>Lịch hôm nay</span>
-          <span class="cal-dow" id="calDow"></span>
-        </div>
-        <div class="cal-body">
-          <div class="cal-solar">
-            <div class="cal-label solar">Dương lịch</div>
-            <div class="cal-num solar" id="solarDay">–</div>
-            <div class="cal-sub solar" id="solarMonthYear"></div>
-            <div class="cal-mini" id="solarFull"></div>
-          </div>
-          <div class="cal-lunar">
-            <div class="cal-label lunar">Âm lịch</div>
-            <div class="cal-num lunar" id="lunarDay">–</div>
-            <div class="cal-sub lunar" id="lunarMonthYear"></div>
-            <div class="cal-mini lunar" id="lunarCan"></div>
-          </div>
-        </div>
-        <div class="cal-detail" id="calDetail">
-          <b>Can chi:</b> đang tính... &nbsp;|&nbsp; <b>Tiết khí:</b> đang tính...
-        </div>
+  <!-- LỊCH -->
+  <div class="card">
+    <div class="cal-top">
+      <span><i class="fa-solid fa-calendar-check" style="margin-right:5px"></i>Lịch hôm nay</span>
+      <small id="calDow"></small>
+    </div>
+    <div class="cal-cols">
+      <div class="cal-solar">
+        <div class="cal-lbl s">Dương lịch</div>
+        <div class="cal-big s" id="sDay">–</div>
+        <div class="cal-name s" id="sMonthYear"></div>
+        <div class="cal-mini s" id="sFull"></div>
       </div>
-
-      <!-- THỜI TIẾT HIỆN TẠI -->
-      <div class="weather-now" id="weatherNow">
-        <div class="loader" style="color:rgba(255,255,255,.7)">
-          <div class="spinner" style="border-color:rgba(255,255,255,.3);border-top-color:#fff"></div>
-          Đang tải dữ liệu thời tiết...
-        </div>
+      <div class="cal-lunar">
+        <div class="cal-lbl l">Âm lịch</div>
+        <div class="cal-big l" id="lDay">–</div>
+        <div class="cal-name l" id="lMonthYear"></div>
+        <div class="cal-mini l" id="lCan"></div>
       </div>
+    </div>
+    <div class="cal-detail" id="calDetail">Đang tính...</div>
+  </div>
 
-      <!-- 24H -->
-      <div class="card">
-        <div class="card-header">
-          <h3><i class="fa-regular fa-clock" style="color:var(--muted)"></i> Diễn biến 24 giờ tới</h3>
-          <span class="badge badge-blue" id="h24Source">Open-Meteo</span>
-        </div>
-        <div class="card-body">
-          <div class="hours-scroll" id="hourForecast">
-            <div class="loader"><div class="spinner"></div> Đang tải...</div>
-          </div>
-        </div>
+  <!-- THỜI TIẾT HIỆN TẠI -->
+  <div class="wn" id="weatherNow">
+    <div class="loader" style="color:rgba(255,255,255,.7)">
+      <div class="spinner" style="border-color:rgba(255,255,255,.25);border-top-color:#fff"></div>
+      Đang tải dữ liệu thời tiết...
+    </div>
+  </div>
+
+  <!-- 24H -->
+  <div class="card">
+    <div class="card-head">
+      <h3><i class="fa-regular fa-clock" style="color:var(--muted)"></i> Diễn biến 24 giờ tới</h3>
+      <span class="badge badge-blue">Open-Meteo</span>
+    </div>
+    <div class="card-body">
+      <div class="h-scroll" id="hourForecast">
+        <div class="loader"><div class="spinner"></div> Đang tải...</div>
       </div>
+    </div>
+  </div>
 
-      <!-- THỦY TRIỀU -->
-      <div class="card">
-        <div class="card-header">
-          <h3><i class="fa-solid fa-water" style="color:var(--accent)"></i> Biểu đồ thủy triều</h3>
-          <span class="badge badge-blue">Hải Phòng</span>
-        </div>
-        <div class="card-body">
-          <div class="tide-chart-wrap">
-            <canvas id="tideChart"></canvas>
-          </div>
-          <div class="tide-stats">
-            <div class="ts-box ts-blue"><div class="ts-label">Cao nhất</div><div class="ts-val">3.91 m</div></div>
-            <div class="ts-box ts-blue"><div class="ts-label">Thấp nhất</div><div class="ts-val">-1.06 m</div></div>
-            <div class="ts-box ts-orange"><div class="ts-label">Bình minh</div><div class="ts-val" id="sunrise">05:49</div></div>
-            <div class="ts-box ts-purple"><div class="ts-label">Hoàng hôn</div><div class="ts-val" id="sunset">18:16</div></div>
-          </div>
-        </div>
+  <!-- 7 NGÀY -->
+  <div class="card">
+    <div class="card-head">
+      <h3><i class="fa-solid fa-calendar-days" style="color:var(--accent)"></i> 7 ngày tới</h3>
+    </div>
+    <div class="card-body" id="weekForecast">
+      <div class="loader"><div class="spinner"></div> Đang tải...</div>
+    </div>
+  </div>
+
+  <!-- THỦY TRIỀU -->
+  <div class="card">
+    <div class="card-head">
+      <h3><i class="fa-solid fa-water" style="color:var(--accent)"></i> Biểu đồ thủy triều</h3>
+      <span class="badge badge-blue">Hải Phòng</span>
+    </div>
+    <div class="card-body">
+      <div class="tide-wrap"><canvas id="tideChart"></canvas></div>
+      <div class="tide-stats">
+        <div class="tb tb-b"><div class="tl">Cao nhất</div><div class="tv">3.91 m</div></div>
+        <div class="tb tb-b"><div class="tl">Thấp nhất</div><div class="tv">-1.06 m</div></div>
+        <div class="tb tb-o"><div class="tl">Bình minh</div><div class="tv" id="sunrise">–</div></div>
+        <div class="tb tb-p"><div class="tl">Hoàng hôn</div><div class="tv" id="sunset">–</div></div>
       </div>
+    </div>
+  </div>
 
-      <!-- BẢN ĐỒ -->
-      <div class="card">
-        <div class="card-header">
-          <h3><i class="fa-solid fa-map" style="color:var(--accent)"></i> Bản đồ radar / gió</h3>
-          <span class="badge badge-blue">Windy</span>
-        </div>
-        <div class="map-wrap" style="border-radius:0;height:380px">
-          <iframe src="https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=default&metricTemp=default&metricWind=default&zoom=8&overlay=rain&product=ecmwf&level=surface&lat=20.857&lon=106.683" allowfullscreen></iframe>
-        </div>
-        <div class="map-footer"><i class="fa-solid fa-circle-info" style="font-size:9px"></i> Bản đồ mưa & gió thời gian thực từ Windy (ECMWF)</div>
+  <!-- GIỜ HOÀNG ĐẠO -->
+  <div class="card">
+    <div class="card-head">
+      <h3><i class="fa-solid fa-yin-yang" style="color:#f59e0b"></i> Giờ hoàng đạo &amp; hắc đạo</h3>
+    </div>
+    <div class="card-body" style="display:flex;flex-direction:column;gap:10px">
+      <div>
+        <div style="font-size:11px;font-weight:600;color:#065f46;margin-bottom:5px">✦ Giờ hoàng đạo (tốt)</div>
+        <div class="gd-block" id="goodHours">–</div>
       </div>
-
-    </div><!-- end col-left -->
-
-    <!-- CỘT PHẢI -->
-    <div class="col">
-
-      <!-- 7 NGÀY -->
-      <div class="card" style="position:sticky;top:12px">
-        <div class="card-header">
-          <h3><i class="fa-solid fa-calendar-days" style="color:var(--accent)"></i> 7 ngày tới</h3>
-        </div>
-        <div class="card-body" id="weekForecast">
-          <div class="loader"><div class="spinner"></div> Đang tải...</div>
-        </div>
-
-        <div style="padding:0 18px 18px">
-          <div style="border-top:1px solid var(--border);margin-bottom:14px;padding-top:14px">
-            <div class="sec-title" style="margin-bottom:8px;font-size:11px;color:var(--muted)">
-              <i class="fa-solid fa-sun" style="color:#f59e0b"></i> Giờ hoàng đạo
-            </div>
-            <div class="giờ-block" id="goodHours">–</div>
-          </div>
-          <div>
-            <div class="sec-title" style="margin-bottom:8px;font-size:11px;color:#991b1b">
-              <i class="fa-solid fa-moon"></i> Giờ hắc đạo
-            </div>
-            <div class="giờ-block" id="badHours">–</div>
-          </div>
-        </div>
+      <div>
+        <div style="font-size:11px;font-weight:600;color:#991b1b;margin-bottom:5px">✦ Giờ hắc đạo (xấu)</div>
+        <div class="gd-block" id="badHours">–</div>
       </div>
+    </div>
+  </div>
 
-    </div><!-- end col-right -->
-  </div><!-- end grid-main -->
+  <!-- BẢN ĐỒ -->
+  <div class="card">
+    <div class="card-head">
+      <h3><i class="fa-solid fa-map" style="color:var(--accent)"></i> Bản đồ radar / gió</h3>
+      <span class="badge badge-blue">Windy</span>
+    </div>
+    <div class="map-box">
+      <iframe src="https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=default&metricTemp=default&metricWind=default&zoom=8&overlay=rain&product=ecmwf&level=surface&lat=20.857&lon=106.683" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="map-foot"><i class="fa-solid fa-circle-info" style="font-size:9px"></i> Bản đồ mưa & gió thực từ Windy (ECMWF)</div>
+  </div>
 
-</div><!-- end wrap -->
+</div>
 
 <script>
-/* ─────────────────────────────────────────────────────
-   UTILITIES
-───────────────────────────────────────────────────── */
-const DAYS_VI = ['Chủ Nhật','Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy'];
-const MONTHS_VI = ['Tháng 1','Tháng 2','Tháng 3','Tháng 4','Tháng 5','Tháng 6','Tháng 7','Tháng 8','Tháng 9','Tháng 10','Tháng 11','Tháng 12'];
-const CAN = ['Giáp','Ất','Bính','Đinh','Mậu','Kỷ','Canh','Tân','Nhâm','Quý'];
-const CHI = ['Tý','Sửu','Dần','Mão','Thìn','Tỵ','Ngọ','Mùi','Thân','Dậu','Tuất','Hợi'];
-const TIET_KHI = {1:'Tiểu hàn · Đại hàn',2:'Lập xuân · Vũ thủy',3:'Kinh trập · Xuân phân',4:'Thanh minh · Cốc vũ',5:'Lập hạ · Tiểu mãn',6:'Mang chủng · Hạ chí',7:'Tiểu thử · Đại thử',8:'Lập thu · Xử thử',9:'Bạch lộ · Thu phân',10:'Hàn lộ · Sương giáng',11:'Lập đông · Tiểu tuyết',12:'Đại tuyết · Đông chí'};
+/* ═══════════════════════════════════════════════════
+   ÂM LỊCH CHÍNH XÁC – thuật toán Hồ Ngọc Đức
+   Tính Julian Day Number → tra bảng tháng âm lịch
+═══════════════════════════════════════════════════ */
+function INT(d){return Math.floor(d);}
 
-function pad2(n){return n<10?'0'+n:''+n}
-
-function solarToLunar(y,m,d){
-  // Anchor: 2025-01-01 solar = Mùng 2 tháng Chạp (12) năm Giáp Thìn (2024 lunar)
-  const anchor={jd:2460677,ld:2,lm:12,ly:2024};
-  const jd=Math.floor((1461*(y+4800+Math.floor((m-14)/12)))/4)
-    +Math.floor((367*(m-2-12*Math.floor((m-14)/12)))/12)
-    -Math.floor((3*Math.floor((y+4900+Math.floor((m-14)/12))/100))/4)+d-32075;
-  const diff=jd-anchor.jd;
-  const totalLD=anchor.ld-1+diff;
-  const approxM=Math.floor(totalLD/29.53059);
-  let dayInM=Math.round(totalLD-approxM*29.53059)+1;
-  if(dayInM<1)dayInM=1;
-  if(dayInM>30)dayInM=30;
-  const lm=((anchor.lm-1+approxM)%12+12)%12+1;
-  const ly=anchor.ly+Math.floor((anchor.lm-1+approxM)/12);
-  return{day:dayInM,month:lm,year:ly};
+function jdFromDate(dd,mm,yy){
+  var a=INT((14-mm)/12);
+  var y=yy+4800-a;
+  var m=mm+12*a-3;
+  var jd=dd+INT((153*m+2)/5)+365*y+INT(y/4)-INT(y/100)+INT(y/400)-32045;
+  if(jd<2299161){jd=dd+INT((153*m+2)/5)+365*y+INT(y/4)-32083;}
+  return jd;
 }
-function getCanChi(yr){return CAN[(yr-4)%10]+' '+CHI[(yr-4)%12]}
 
-/* ─────────────────────────────────────────────────────
-   CALENDAR RENDER
-───────────────────────────────────────────────────── */
+function getNewMoonDay(k,timeZone){
+  var T=k/1236.85;
+  var T2=T*T;var T3=T2*T;var T4=T3*T;
+  var Jde=2415020.75933+29.53058868*k+0.0001178*T2-0.000000155*T3
+    +0.00033*Math.sin((166.56+132.87*T-0.009173*T2)*Math.PI/180);
+  var M=357.5291+29.1534273*k-0.0000014*T2-0.00000011*T3;
+  M=M*Math.PI/180;
+  var Mprime=134.9634+477198.8676*k+0.0087*T2+0.000014*T3;
+  Mprime=Mprime*Math.PI/180;
+  var F=93.2721+483202.0175*k-0.0036*T2-0.00000283*T3;
+  F=F*Math.PI/180;
+  var C1=(0.1734-0.000393*T)*Math.sin(M)+0.0021*Math.sin(2*M);
+  C1=C1-0.4068*Math.sin(Mprime)+0.0161*Math.sin(2*Mprime)-0.0004*Math.sin(3*Mprime);
+  C1=C1+0.0104*Math.sin(2*F)-0.0051*Math.sin(M+Mprime);
+  C1=C1-0.0074*Math.sin(M-Mprime)+0.0004*Math.sin(2*F+M);
+  C1=C1-0.0004*Math.sin(2*F-M)-0.0006*Math.sin(2*F+Mprime);
+  C1=C1+0.0010*Math.sin(2*F-Mprime)+0.0005*Math.sin(M+2*Mprime);
+  var deltaT;
+  if(T<-11){deltaT=-0.000278+0.000265*T+0.000262*T2;}
+  else{deltaT=-0.000278+0.000265*T+0.000262*T2;}
+  var JdNew=Jde+C1-deltaT;
+  return INT(JdNew+0.5+timeZone/24);
+}
+
+function getSunLongitude(jdn,timeZone){
+  var T=(jdn-2451545.5-timeZone/24)/36525;
+  var T2=T*T;
+  var dr=Math.PI/180;
+  var M=357.5291+35999.0503*T-0.0001559*T2-0.00000048*T*T2;
+  var L0=280.46645+36000.76983*T+0.0003032*T2;
+  var DL=(1.9146-0.004817*T-0.000014*T2)*Math.sin(dr*M)
+    +(0.019993-0.000101*T)*Math.sin(dr*2*M)+0.00029*Math.sin(dr*3*M);
+  var L=L0+DL;
+  var L=L*dr;L=L-Math.PI*2*INT(L/(Math.PI*2));
+  return INT(L/(Math.PI/6));
+}
+
+function getLunarMonth11(yy,timeZone){
+  var off=jdFromDate(31,12,yy)-2415021;
+  var k=INT(off/29.530588853);
+  var nm=getNewMoonDay(k,timeZone);
+  var sunLong=getSunLongitude(nm,timeZone);
+  if(sunLong>=9){nm=getNewMoonDay(k-1,timeZone);}
+  return nm;
+}
+
+function getLeapMonthOffset(a11,timeZone){
+  var k=INT((a11-2415021.076998695)/29.530588853+0.5);
+  var last,i=1,arc=getSunLongitude(getNewMoonDay(k+i,timeZone),timeZone);
+  do{
+    last=arc;i++;
+    arc=getSunLongitude(getNewMoonDay(k+i,timeZone),timeZone);
+  }while(arc!==last&&i<14);
+  return i-1;
+}
+
+function solarToLunar(dd,mm,yy){
+  var timeZone=7;
+  var dayNumber=jdFromDate(dd,mm,yy);
+  var k=INT((dayNumber-2415021.076998695)/29.530588853);
+  var monthStart=getNewMoonDay(k+1,timeZone);
+  if(monthStart>dayNumber){monthStart=getNewMoonDay(k,timeZone);}
+  var a11=getLunarMonth11(yy,timeZone);
+  var b11=a11;
+  var lunarYear;
+  if(a11>=monthStart){
+    lunarYear=yy;a11=getLunarMonth11(yy-1,timeZone);
+  }else{
+    lunarYear=yy+1;b11=getLunarMonth11(yy+1,timeZone);
+  }
+  var lunarDay=dayNumber-monthStart+1;
+  var diff=INT((monthStart-a11)/29);
+  var lunarLeap=0;
+  var lunarMonth=diff+11;
+  if(b11-a11>365){
+    var leapMonthDiff=getLeapMonthOffset(a11,timeZone);
+    if(diff>=leapMonthDiff){
+      lunarMonth=diff+10;
+      if(diff===leapMonthDiff){lunarLeap=1;}
+    }
+  }
+  if(lunarMonth>12){lunarMonth=lunarMonth-12;}
+  if(lunarMonth>=11&&diff<4){lunarYear--;}
+  return{day:lunarDay,month:lunarMonth,year:lunarYear,leap:lunarLeap};
+}
+
+/* ═══════════════════════════════════════════════════
+   CAN CHI
+═══════════════════════════════════════════════════ */
+var CAN=['Giáp','Ất','Bính','Đinh','Mậu','Kỷ','Canh','Tân','Nhâm','Quý'];
+var CHI=['Tý','Sửu','Dần','Mão','Thìn','Tỵ','Ngọ','Mùi','Thân','Dậu','Tuất','Hợi'];
+var DAYS_VI=['Chủ Nhật','Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy'];
+var TIET_KHI={1:'Tiểu hàn · Đại hàn',2:'Lập xuân · Vũ thủy',3:'Kinh trập · Xuân phân',4:'Thanh minh · Cốc vũ',5:'Lập hạ · Tiểu mãn',6:'Mang chủng · Hạ chí',7:'Tiểu thử · Đại thử',8:'Lập thu · Xử thử',9:'Bạch lộ · Thu phân',10:'Hàn lộ · Sương giáng',11:'Lập đông · Tiểu tuyết',12:'Đại tuyết · Đông chí'};
+
+function getCanChi(yr){return CAN[(yr-4)%10]+' '+CHI[(yr-4)%12];}
+function pad2(n){return n<10?'0'+n:''+n;}
+function getCanChiNgay(jd){return CAN[(jd+9)%10]+' '+CHI[(jd+1)%12];}
+function getCanChiThang(lunarYear,lunarMonth){
+  var base=[2,4,6,8,0,2,4,6,8,0];
+  var canNamIdx=(lunarYear-4)%10;
+  var canIdx=(base[canNamIdx]+(lunarMonth-1))%10;
+  var chiIdx=(lunarMonth+1)%12;
+  return CAN[canIdx]+' '+CHI[chiIdx];
+}
+
+/* ═══════════════════════════════════════════════════
+   GIỜ HOÀNG ĐẠO theo Can ngày (bảng chuẩn)
+═══════════════════════════════════════════════════ */
+var HOANG_DAO_MAP=[
+  // Giáp/Kỷ
+  ['Tý (23-1h)','Sửu (1-3h)','Thìn (7-9h)','Tỵ (9-11h)','Mùi (13-15h)','Tuất (19-21h)'],
+  // Ất/Canh
+  ['Sửu (1-3h)','Dần (3-5h)','Tỵ (9-11h)','Ngọ (11-13h)','Thân (15-17h)','Hợi (21-23h)'],
+  // Bính/Tân
+  ['Dần (3-5h)','Mão (5-7h)','Ngọ (11-13h)','Mùi (13-15h)','Dậu (17-19h)','Tý (23-1h)'],
+  // Đinh/Nhâm
+  ['Mão (5-7h)','Thìn (7-9h)','Mùi (13-15h)','Thân (15-17h)','Tuất (19-21h)','Sửu (1-3h)'],
+  // Mậu/Quý
+  ['Thìn (7-9h)','Tỵ (9-11h)','Thân (15-17h)','Dậu (17-19h)','Hợi (21-23h)','Dần (3-5h)'],
+];
+var HAC_DAO_MAP=[
+  ['Dần (3-5h)','Mão (5-7h)','Ngọ (11-13h)','Thân (15-17h)','Dậu (17-19h)','Hợi (21-23h)'],
+  ['Mão (5-7h)','Thìn (7-9h)','Ngọ (11-13h)','Mùi (13-15h)','Tuất (19-21h)','Tý (23-1h)'],
+  ['Tý (23-1h)','Sửu (1-3h)','Thìn (7-9h)','Tỵ (9-11h)','Mùi (13-15h)','Tuất (19-21h)'],
+  ['Tý (23-1h)','Dần (3-5h)','Mão (5-7h)','Tỵ (9-11h)','Ngọ (11-13h)','Hợi (21-23h)'],
+  ['Sửu (1-3h)','Mão (5-7h)','Ngọ (11-13h)','Mùi (13-15h)','Dậu (17-19h)','Tý (23-1h)'],
+];
+
 function renderCalendar(){
-  const now=new Date();
-  const y=now.getFullYear(),mo=now.getMonth()+1,d=now.getDate(),dow=now.getDay();
-  document.getElementById('headerDate').textContent=DAYS_VI[dow]+', '+pad2(d)+'/'+pad2(mo)+'/'+y+' – Nhiệt độ & thời tiết Hải Phòng';
-  document.getElementById('calDow').textContent=DAYS_VI[dow]+', '+pad2(d)+'/'+pad2(mo)+'/'+y;
-  document.getElementById('solarDay').textContent=d;
-  document.getElementById('solarMonthYear').textContent=MONTHS_VI[mo-1]+' năm '+y;
-  document.getElementById('solarFull').textContent='Ngày: '+pad2(d)+'-'+pad2(mo)+'-'+y;
+  var now=new Date();
+  var y=now.getFullYear(),mo=now.getMonth()+1,d=now.getDate(),dow=now.getDay();
+  document.getElementById('headerDate').textContent=DAYS_VI[dow]+', '+pad2(d)+'/'+pad2(mo)+'/'+y+' – Thời tiết Hải Phòng';
+  document.getElementById('calDow').textContent=DAYS_VI[dow]+' '+pad2(d)+'/'+pad2(mo)+'/'+y;
+  document.getElementById('sDay').textContent=d;
+  document.getElementById('sMonthYear').textContent='Tháng '+mo+' năm '+y;
+  document.getElementById('sFull').textContent='Ngày: '+pad2(d)+'-'+pad2(mo)+'-'+y;
 
-  const lunar=solarToLunar(y,mo,d);
-  document.getElementById('lunarDay').textContent=lunar.day;
-  document.getElementById('lunarMonthYear').textContent='Tháng '+lunar.month+' năm '+lunar.year;
-  document.getElementById('lunarCan').textContent='('+getCanChi(lunar.year)+')';
+  var lunar=solarToLunar(d,mo,y);
+  document.getElementById('lDay').textContent=lunar.day;
+  var lmStr='Tháng '+(lunar.leap?'nhuận ':'')+lunar.month+' năm '+lunar.year;
+  document.getElementById('lMonthYear').textContent=lmStr;
+  document.getElementById('lCan').textContent='('+getCanChi(lunar.year)+')';
 
-  const seed=y*366+mo*31+d;
-  const canNgayIdx=seed%10;
-  const chiNgayIdx=seed%12;
-  const canThangIdx=(mo+y*12)%10;
-  const chiThangIdx=(mo+y*12)%12;
+  var jd=jdFromDate(d,mo,y);
+  var canChiNgay=getCanChiNgay(jd);
+  var canChiThang=getCanChiThang(lunar.year,lunar.month);
   document.getElementById('calDetail').innerHTML=
-    '<b>Can chi:</b> Ngày '+CAN[canNgayIdx]+' '+CHI[chiNgayIdx]+
-    ', Tháng '+CAN[canThangIdx]+' '+CHI[chiThangIdx]+
-    '&nbsp;|&nbsp;<b>Tiết khí:</b> '+(TIET_KHI[mo]||'');
+    '<b>Can chi:</b> Ngày '+canChiNgay+', Tháng '+canChiThang+
+    '&nbsp;&nbsp;|&nbsp;&nbsp;<b>Tiết khí:</b> '+(TIET_KHI[mo]||'–');
 
-  // Giờ hoàng đạo / hắc đạo (standard by can ngày)
-  const goodSets=[
-    ['Tý (23-1h)','Sửu (1-3h)','Thìn (7-9h)','Tỵ (9-11h)','Mùi (13-15h)','Tuất (19-21h)'],
-    ['Dần (3-5h)','Mão (5-7h)','Ngọ (11-13h)','Thân (15-17h)','Dậu (17-19h)','Hợi (21-23h)'],
-  ];
-  const goodHrs=goodSets[canNgayIdx%2];
-  const badHrs=goodSets[(canNgayIdx+1)%2];
-  document.getElementById('goodHours').innerHTML='<b style="color:#065f46">✦</b> '+goodHrs.join(' · ');
-  document.getElementById('badHours').innerHTML='<b style="color:#991b1b">✦</b> '+badHrs.join(' · ');
+  var canNgayIdx=(jd+9)%10;
+  var mapIdx=Math.floor(canNgayIdx/2)%5;
+  document.getElementById('goodHours').textContent=HOANG_DAO_MAP[mapIdx].join(' · ');
+  document.getElementById('badHours').textContent=HAC_DAO_MAP[mapIdx].join(' · ');
+  document.getElementById('updateTime').textContent='Cập nhật '+pad2(now.getHours())+':'+pad2(now.getMinutes());
 }
 
-/* ─────────────────────────────────────────────────────
-   WEATHER ICONS
-───────────────────────────────────────────────────── */
-function wmoIcon(code,isDay){
-  const d=isDay!==false;
-  if(code===0)return d?'☀️':'🌙';
-  if(code<=2)return d?'🌤️':'☁️';
-  if(code===3)return '☁️';
-  if(code<=49)return '🌫️';
-  if(code<=59)return '🌦️';
-  if(code<=69)return '🌨️';
-  if(code<=79)return '❄️';
-  if(code<=82)return '🌧️';
-  if(code<=84)return '🌨️';
-  if(code<=99)return '⛈️';
+/* ═══════════════════════════════════════════════════
+   WEATHER HELPERS
+═══════════════════════════════════════════════════ */
+function wmoIcon(c,day){
+  var d=day!==false;
+  if(c===0)return d?'☀️':'🌙';
+  if(c<=2)return d?'🌤️':'☁️';
+  if(c===3)return '☁️';
+  if(c<=49)return '🌫️';
+  if(c<=59)return '🌦️';
+  if(c<=69)return '🌧️';
+  if(c<=79)return '❄️';
+  if(c<=82)return '🌧️';
+  if(c<=84)return '🌨️';
+  if(c<=99)return '⛈️';
   return '🌡️';
 }
-function wmoDesc(code){
-  if(code===0)return 'Trời quang';
-  if(code<=2)return 'Có mây';
-  if(code===3)return 'Nhiều mây';
-  if(code<=49)return 'Sương mù';
-  if(code<=59)return 'Mưa phùn';
-  if(code<=69)return 'Mưa';
-  if(code<=79)return 'Tuyết';
-  if(code<=82)return 'Mưa rào';
-  if(code<=84)return 'Mưa tuyết';
-  if(code<=99)return 'Dông bão';
+function wmoDesc(c){
+  if(c===0)return 'Trời quang';
+  if(c<=2)return 'Có mây';
+  if(c===3)return 'Nhiều mây';
+  if(c<=49)return 'Sương mù';
+  if(c<=59)return 'Mưa phùn';
+  if(c<=69)return 'Mưa';
+  if(c<=79)return 'Tuyết';
+  if(c<=82)return 'Mưa rào';
+  if(c<=84)return 'Mưa tuyết';
+  if(c<=99)return 'Dông bão';
   return 'Không rõ';
 }
+function uvLabel(v){
+  if(v<3)return 'Thấp';if(v<6)return 'Trung bình';if(v<8)return 'Cao';if(v<11)return 'Rất cao';return 'Cực cao';
+}
 
-/* ─────────────────────────────────────────────────────
-   FETCH WEATHER – Open-Meteo (free, no key)
-   Lat/Lon: Hải Phòng 20.8529, 106.6833
-───────────────────────────────────────────────────── */
-const LAT=20.8529, LON=106.6833;
-
+/* ═══════════════════════════════════════════════════
+   API OPEN-METEO
+═══════════════════════════════════════════════════ */
+var LAT=20.8529,LON=106.6833;
 async function fetchWeather(){
-  const url=`https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}`+
-    `&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,`+
-    `weather_code,uv_index,visibility,surface_pressure,dew_point_2m,is_day`+
-    `&hourly=temperature_2m,precipitation_probability,weather_code,wind_speed_10m`+
-    `&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset`+
-    `&timezone=Asia%2FHo_Chi_Minh&forecast_days=7`;
-  const res=await fetch(url);
+  var url='https://api.open-meteo.com/v1/forecast?latitude='+LAT+'&longitude='+LON
+    +'&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,'
+    +'weather_code,uv_index,visibility,surface_pressure,dew_point_2m,is_day'
+    +'&hourly=temperature_2m,precipitation_probability,weather_code,wind_speed_10m'
+    +'&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset'
+    +'&timezone=Asia%2FHo_Chi_Minh&forecast_days=7';
+  var res=await fetch(url);
   if(!res.ok)throw new Error('HTTP '+res.status);
   return res.json();
 }
 
 function renderWeatherNow(c){
-  const temp=Math.round(c.temperature_2m);
-  const feel=Math.round(c.apparent_temperature);
-  const hum=c.relative_humidity_2m;
-  const wind=Math.round(c.wind_speed_10m);
-  const uv=c.uv_index.toFixed(1);
-  const vis=c.visibility>=1000?(c.visibility/1000).toFixed(0)+' km':(c.visibility+' m');
-  const pres=Math.round(c.surface_pressure);
-  const dew=Math.round(c.dew_point_2m);
-  const desc=wmoDesc(c.weather_code);
-  const icon=wmoIcon(c.weather_code,c.is_day);
-
-  document.getElementById('weatherNow').innerHTML=`
-    <div class="wn-top">
-      <div class="wn-temp-block">
-        <div>
-          <div style="font-size:36px;margin-bottom:-6px">${icon}</div>
-          <div class="wn-temp">${temp}°</div>
-        </div>
-        <div class="wn-info">
-          <div class="wn-desc">${desc}</div>
-          <div class="wn-feel">Cảm giác như ${feel}°</div>
-          <div class="wn-chips">
-            <span>💧 ${hum}%</span>
-            <span>💨 ${wind} km/h</span>
-          </div>
-        </div>
-      </div>
-      <div class="wn-stats">
-        <div class="ws-box"><div class="ws-label">Chỉ số UV</div><div class="ws-val">${uv}</div><div class="ws-sub">${uvLabel(c.uv_index)}</div></div>
-        <div class="ws-box"><div class="ws-label">Tầm nhìn</div><div class="ws-val">${vis}</div></div>
-        <div class="ws-box"><div class="ws-label">Áp suất</div><div class="ws-val">${pres}</div><div class="ws-sub">hPa</div></div>
-        <div class="ws-box"><div class="ws-label">Điểm sương</div><div class="ws-val">${dew}°</div></div>
-      </div>
-    </div>
-  `;
-}
-
-function uvLabel(v){
-  if(v<3)return 'Thấp';
-  if(v<6)return 'Trung bình';
-  if(v<8)return 'Cao';
-  if(v<11)return 'Rất cao';
-  return 'Cực cao';
+  var temp=Math.round(c.temperature_2m);
+  var feel=Math.round(c.apparent_temperature);
+  var hum=c.relative_humidity_2m;
+  var wind=Math.round(c.wind_speed_10m);
+  var uv=c.uv_index.toFixed(1);
+  var vis=c.visibility>=1000?(c.visibility/1000).toFixed(0)+' km':(c.visibility+' m');
+  var pres=Math.round(c.surface_pressure);
+  var dew=Math.round(c.dew_point_2m);
+  document.getElementById('weatherNow').innerHTML=
+    '<div class="wn-main">'
+    +'<div class="wn-left">'
+    +'<div><div style="font-size:34px;margin-bottom:-4px">'+wmoIcon(c.weather_code,c.is_day)+'</div>'
+    +'<div class="wn-temp">'+temp+'°</div></div>'
+    +'<div><div class="wn-desc">'+wmoDesc(c.weather_code)+'</div>'
+    +'<div class="wn-feel">Cảm giác như '+feel+'°</div>'
+    +'<div class="wn-chips"><span>💧 '+hum+'%</span><span>💨 '+wind+' km/h</span></div></div>'
+    +'</div>'
+    +'<div class="wn-stats">'
+    +'<div class="ws"><div class="ws-lbl">Chỉ số UV</div><div class="ws-val">'+uv+'</div><div class="ws-sub">'+uvLabel(c.uv_index)+'</div></div>'
+    +'<div class="ws"><div class="ws-lbl">Tầm nhìn</div><div class="ws-val">'+vis+'</div></div>'
+    +'<div class="ws"><div class="ws-lbl">Áp suất</div><div class="ws-val">'+pres+'</div><div class="ws-sub">hPa</div></div>'
+    +'<div class="ws"><div class="ws-lbl">Điểm sương</div><div class="ws-val">'+dew+'°</div></div>'
+    +'</div></div>';
 }
 
 function renderHourly(hourly){
-  const now=new Date();
-  const curH=now.getHours();
-  // Find index of current hour in API times
-  const times=hourly.time;
-  const todayStr=now.toISOString().slice(0,10);
-  let startIdx=times.findIndex(t=>t.startsWith(todayStr)&&parseInt(t.slice(11,13))===curH);
-  if(startIdx<0)startIdx=0;
-
-  const container=document.getElementById('hourForecast');
-  container.innerHTML='';
-  for(let i=0;i<24&&startIdx+i<times.length;i++){
-    const idx=startIdx+i;
-    const t=new Date(times[idx]);
-    const h=t.getHours();
-    const isNow=i===0;
-    const temp=Math.round(hourly.temperature_2m[idx]);
-    const rain=hourly.precipitation_probability[idx]||0;
-    const wind=Math.round(hourly.wind_speed_10m[idx]);
-    const wcode=hourly.weather_code[idx];
-    const isDay=h>=6&&h<=18;
-    const div=document.createElement('div');
-    div.className='hour-card'+(isNow?' active':'');
-    div.innerHTML=`
-      <div class="hc-time">${isNow?'Bây giờ':pad2(h)+':00'}</div>
-      <div class="hc-icon">${wmoIcon(wcode,isDay)}</div>
-      <div class="hc-temp">${temp}°</div>
-      <div class="hc-rain">💧 ${rain}%</div>
-      <div class="hc-wind">💨 ${wind} km/h</div>
-      <div class="hc-desc">${wmoDesc(wcode)}</div>
-    `;
-    container.appendChild(div);
+  var now=new Date();
+  var curH=now.getHours();
+  var todayStr=now.toISOString().slice(0,10);
+  var times=hourly.time;
+  var startIdx=0;
+  for(var i=0;i<times.length;i++){
+    if(times[i].startsWith(todayStr)&&parseInt(times[i].slice(11,13))===curH){startIdx=i;break;}
   }
+  var cont=document.getElementById('hourForecast');
+  cont.innerHTML='';
+  for(var i=0;i<24&&startIdx+i<times.length;i++){
+    var idx=startIdx+i;
+    var h=parseInt(times[idx].slice(11,13));
+    var isNow=i===0;
+    var div=document.createElement('div');
+    div.className='hc'+(isNow?' now':'');
+    div.innerHTML='<div class="hc-t">'+(isNow?'Bây giờ':pad2(h)+':00')+'</div>'
+      +'<div class="hc-i">'+wmoIcon(hourly.weather_code[idx],h>=6&&h<=18)+'</div>'
+      +'<div class="hc-tmp">'+Math.round(hourly.temperature_2m[idx])+'°</div>'
+      +'<div class="hc-r">💧 '+(hourly.precipitation_probability[idx]||0)+'%</div>'
+      +'<div class="hc-w">💨 '+Math.round(hourly.wind_speed_10m[idx])+' km/h</div>'
+      +'<div class="hc-d">'+wmoDesc(hourly.weather_code[idx])+'</div>';
+    cont.appendChild(div);
+  }
+  setTimeout(function(){
+    var nc=cont.querySelector('.now');
+    if(nc)nc.scrollIntoView({inline:'center',behavior:'smooth'});
+  },300);
 }
 
 function renderWeekly(daily){
-  const container=document.getElementById('weekForecast');
-  container.innerHTML='';
-  const now=new Date();
-  daily.time.forEach((dateStr,i)=>{
-    const dt=new Date(dateStr+'T12:00:00');
-    const dow=dt.getDay();
-    const isToday=i===0;
-    const isTomorrow=i===1;
-    const label=isToday?'Hôm nay':isTomorrow?'Ngày mai':DAYS_VI[dow];
-    const hi=Math.round(daily.temperature_2m_max[i]);
-    const lo=Math.round(daily.temperature_2m_min[i]);
-    const desc=wmoDesc(daily.weather_code[i]);
-    const icon=wmoIcon(daily.weather_code[i],true);
-    const row=document.createElement('div');
+  var cont=document.getElementById('weekForecast');
+  cont.innerHTML='';
+  daily.time.forEach(function(dateStr,i){
+    var dt=new Date(dateStr+'T12:00:00+07:00');
+    var isToday=i===0,isTomorrow=i===1;
+    var label=isToday?'Hôm nay':isTomorrow?'Ngày mai':DAYS_VI[dt.getDay()];
+    var row=document.createElement('div');
     row.className='day-row';
-    row.innerHTML=`
-      <div class="dr-day">
-        <div class="dr-day-name${isToday?' today':''}">${label}</div>
-        <div class="dr-date">${pad2(dt.getDate())}/${pad2(dt.getMonth()+1)}</div>
-      </div>
-      <div class="dr-weather"><span class="dr-icon">${icon}</span> ${desc}</div>
-      <div class="dr-temp">${hi}°<span class="dr-temp-lo">${lo}°</span></div>
-    `;
-    container.appendChild(row);
+    row.innerHTML='<div class="dr-day"><div class="dr-dn'+(isToday?' today':'')+'">'+label+'</div>'
+      +'<div class="dr-dd">'+pad2(dt.getDate())+'/'+pad2(dt.getMonth()+1)+'</div></div>'
+      +'<div class="dr-w"><span class="dr-i">'+wmoIcon(daily.weather_code[i],true)+'</span> '+wmoDesc(daily.weather_code[i])+'</div>'
+      +'<div class="dr-tmp">'+Math.round(daily.temperature_2m_max[i])+'°<span class="dr-lo">'+Math.round(daily.temperature_2m_min[i])+'°</span></div>';
+    cont.appendChild(row);
   });
 }
 
-function renderSunriseSunset(daily){
-  if(daily.sunrise&&daily.sunrise[0]){
-    document.getElementById('sunrise').textContent=daily.sunrise[0].slice(11,16);
-  }
-  if(daily.sunset&&daily.sunset[0]){
-    document.getElementById('sunset').textContent=daily.sunset[0].slice(11,16);
-  }
+function renderSunrise(daily){
+  if(daily.sunrise&&daily.sunrise[0])document.getElementById('sunrise').textContent=daily.sunrise[0].slice(11,16);
+  if(daily.sunset&&daily.sunset[0])document.getElementById('sunset').textContent=daily.sunset[0].slice(11,16);
 }
 
-/* ─────────────────────────────────────────────────────
-   TIDE CHART (mock – no free tide API available)
-───────────────────────────────────────────────────── */
-function renderTideChart(){
-  const ctx=document.getElementById('tideChart').getContext('2d');
+function renderTide(){
+  var ctx=document.getElementById('tideChart').getContext('2d');
   new Chart(ctx,{
     type:'line',
     data:{
       labels:['09:00','12:00','15:00','18:00','21:00','00:00','03:00','06:00','09:00'],
-      datasets:[{
-        data:[3.5,3.2,0.5,-1.0,1.2,3.8,2.5,1.0,2.8],
-        borderColor:'#0ea5e9',
-        backgroundColor:'rgba(14,165,233,.1)',
+      datasets:[{data:[3.5,3.2,0.5,-1.0,1.2,3.8,2.5,1.0,2.8],
+        borderColor:'#0ea5e9',backgroundColor:'rgba(14,165,233,.1)',
         fill:true,tension:.4,borderWidth:2.5,
-        pointRadius:4,pointBackgroundColor:'#fff',pointBorderColor:'#0ea5e9',pointBorderWidth:2
-      }]
+        pointRadius:4,pointBackgroundColor:'#fff',pointBorderColor:'#0ea5e9',pointBorderWidth:2}]
     },
-    options:{
-      responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:v=>v.parsed.y.toFixed(2)+' m'}}},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:function(v){return v.parsed.y.toFixed(2)+' m';}}}},
       scales:{
         y:{min:-2,max:4.5,ticks:{stepSize:1,color:'#94a3b8',font:{size:10}},grid:{color:'rgba(0,0,0,.05)'}},
         x:{ticks:{color:'#94a3b8',font:{size:10}},grid:{display:false}}
@@ -583,91 +559,71 @@ function renderTideChart(){
   });
 }
 
-/* ─────────────────────────────────────────────────────
-   UPDATE TIME
-───────────────────────────────────────────────────── */
-function setUpdateTime(){
-  const now=new Date();
-  document.getElementById('updateTime').textContent='Cập nhật '+pad2(now.getHours())+':'+pad2(now.getMinutes());
-}
-
-/* ─────────────────────────────────────────────────────
-   MAIN
-───────────────────────────────────────────────────── */
-async function main(){
-  renderCalendar();
-  renderTideChart();
-  setUpdateTime();
-
-  try{
-    const data=await fetchWeather();
-    renderWeatherNow(data.current);
-    renderHourly(data.hourly);
-    renderWeekly(data.daily);
-    renderSunriseSunset(data.daily);
-  }catch(err){
-    console.error(err);
-    document.getElementById('weatherNow').innerHTML=`
-      <div style="padding:16px">
-        <div class="error-msg"><i class="fa-solid fa-triangle-exclamation"></i> Không thể tải dữ liệu thời tiết. Vui lòng kiểm tra kết nối mạng.</div>
-        <div style="margin-top:10px;font-size:11px;color:rgba(255,255,255,.6)">Đang dùng dữ liệu dự phòng...</div>
-      </div>`;
-    renderFallback();
-  }
-}
-
 function renderFallback(){
-  // Fallback hourly (static)
-  const container=document.getElementById('hourForecast');
-  container.innerHTML='';
-  const fallback=[
-    {t:'Bây giờ',i:'☁️',temp:27,rain:35,wind:13,desc:'Nhiều mây'},
-    {t:'10:00',i:'🌦️',temp:28,rain:40,wind:14,desc:'Khả năng mưa'},
-    {t:'12:00',i:'⛈️',temp:29,rain:65,wind:20,desc:'Dông bão'},
-    {t:'15:00',i:'🌧️',temp:27,rain:50,wind:16,desc:'Mưa vừa'},
-    {t:'18:00',i:'⛅',temp:26,rain:15,wind:11,desc:'Có mây'},
-    {t:'21:00',i:'🌙',temp:25,rain:5,wind:9,desc:'Quang mây'},
-  ];
-  fallback.forEach((item,i)=>{
-    const div=document.createElement('div');
-    div.className='hour-card'+(i===0?' active':'');
-    div.innerHTML=`<div class="hc-time">${item.t}</div><div class="hc-icon">${item.i}</div><div class="hc-temp">${item.temp}°</div><div class="hc-rain">💧 ${item.rain}%</div><div class="hc-wind">💨 ${item.wind} km/h</div><div class="hc-desc">${item.desc}</div>`;
-    container.appendChild(div);
+  var cont=document.getElementById('hourForecast');
+  cont.innerHTML='';
+  [['Bây giờ','☁️',27,35,13,'Nhiều mây'],['10:00','🌦️',28,40,14,'Mưa nhẹ'],['12:00','⛈️',29,65,20,'Dông bão'],['15:00','🌧️',27,50,16,'Mưa vừa'],['18:00','⛅',26,15,11,'Có mây'],['21:00','🌙',25,5,9,'Quang mây']].forEach(function(it,i){
+    var div=document.createElement('div');div.className='hc'+(i===0?' now':'');
+    div.innerHTML='<div class="hc-t">'+it[0]+'</div><div class="hc-i">'+it[1]+'</div><div class="hc-tmp">'+it[2]+'°</div><div class="hc-r">💧 '+it[3]+'%</div><div class="hc-w">💨 '+it[4]+' km/h</div><div class="hc-d">'+it[5]+'</div>';
+    cont.appendChild(div);
   });
-
-  // Fallback weekly
-  const wf=document.getElementById('weekForecast');
-  wf.innerHTML='';
-  const now=new Date();
-  [['⛈️','Dông bão',29,24],['⛅','Nhiều mây',32,24],['⛈️','Dông bão',30,24],['⛈️','Dông bão',30,24],['⛅','Nhiều mây',30,24],['🌤️','Có nắng',31,25],['⛅','Mây rải rác',32,25]].forEach(([icon,desc,hi,lo],i)=>{
-    const dt=new Date(now);dt.setDate(dt.getDate()+i);
-    const row=document.createElement('div');
-    row.className='day-row';
-    row.innerHTML=`<div class="dr-day"><div class="dr-day-name${i===0?' today':''}">${i===0?'Hôm nay':i===1?'Ngày mai':DAYS_VI[dt.getDay()]}</div><div class="dr-date">${pad2(dt.getDate())}/${pad2(dt.getMonth()+1)}</div></div><div class="dr-weather"><span class="dr-icon">${icon}</span> ${desc}</div><div class="dr-temp">${hi}°<span class="dr-temp-lo">${lo}°</span></div>`;
+  var wf=document.getElementById('weekForecast');wf.innerHTML='';
+  var now=new Date();
+  [['⛈️','Dông bão',29,24],['⛅','Nhiều mây',32,24],['⛈️','Dông bão',30,24],['⛈️','Dông bão',30,24],['⛅','Nhiều mây',30,24],['🌤️','Có nắng',31,25],['⛅','Mây rải rác',32,25]].forEach(function(a,i){
+    var dt=new Date(now);dt.setDate(dt.getDate()+i);
+    var row=document.createElement('div');row.className='day-row';
+    row.innerHTML='<div class="dr-day"><div class="dr-dn'+(i===0?' today':'')+'">'+( i===0?'Hôm nay':i===1?'Ngày mai':DAYS_VI[dt.getDay()])+'</div><div class="dr-dd">'+pad2(dt.getDate())+'/'+pad2(dt.getMonth()+1)+'</div></div><div class="dr-w"><span class="dr-i">'+a[0]+'</span> '+a[1]+'</div><div class="dr-tmp">'+a[2]+'°<span class="dr-lo">'+a[3]+'°</span></div>';
     wf.appendChild(row);
   });
 }
 
-main();
-</script>
-<script>
-function sendHeight() {
-    const height = document.documentElement.scrollHeight;
-    parent.postMessage({
-        type: "weatherHeight",
-        height: height
-    }, "*");
+async function main(){
+  renderCalendar();
+  renderTide();
+  try{
+    var data=await fetchWeather();
+    renderWeatherNow(data.current);
+    renderHourly(data.hourly);
+    renderWeekly(data.daily);
+    renderSunrise(data.daily);
+  }catch(e){
+    console.error(e);
+    document.getElementById('weatherNow').innerHTML='<div style="padding:14px"><div class="err"><i class="fa-solid fa-triangle-exclamation"></i> Không thể tải dữ liệu. Đang dùng dữ liệu dự phòng.</div></div>';
+    renderFallback();
+  }
+  sendHeight();
 }
 
-// Gửi khi load
-window.addEventListener("load", sendHeight);
+main();
 
-// Gửi lại khi resize
-window.addEventListener("resize", sendHeight);
+/* ═══════════════════════════════════════════════════
+   POSTMESSAGE – format { height: N }
+   Khớp với code WordPress của bạn:
+     if (event.data && event.data.height) { ... }
+═══════════════════════════════════════════════════ */
+function sendHeight(){
+  var h=Math.max(
+    document.body.scrollHeight,
+    document.body.offsetHeight,
+    document.documentElement.scrollHeight,
+    document.documentElement.offsetHeight
+  );
+  try{parent.postMessage({height:h},'*');}catch(e){}
+  try{top.postMessage({height:h},'*');}catch(e){}
+}
 
-// Gửi lại sau khi API load xong (quan trọng)
-setTimeout(sendHeight, 1000);
-setTimeout(sendHeight, 2000);
+window.addEventListener('load',function(){
+  sendHeight();
+  setTimeout(sendHeight,600);
+  setTimeout(sendHeight,1500);
+  setTimeout(sendHeight,3000);
+});
+window.addEventListener('resize',sendHeight);
+if(window.MutationObserver){
+  var obs=new MutationObserver(function(){setTimeout(sendHeight,100);});
+  obs.observe(document.body,{childList:true,subtree:true});
+}
+var pc=0,pi=setInterval(function(){sendHeight();if(++pc>=8)clearInterval(pi);},3000);
 </script>
 </body>
 </html>
